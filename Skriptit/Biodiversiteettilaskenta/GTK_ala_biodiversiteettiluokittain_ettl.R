@@ -14,14 +14,14 @@ source_lines(here("Skriptit/Uudet skriptit/GTK_datan_tasokorjaus_ohitus.R"),1:35
 #Tuotantosuuntien kirjoitusasujen yhdenmukaistus. Koskee nii joissa on välilyöntejä. #####
 
 GTK_aggregointi_elop<-GTK_aggregointi_elop %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                              Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                              Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                              Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                              Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                              Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                              Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                              Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                              .default = Tuotantosuunta))
+                                                                                 Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                 Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                 Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                 Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                 Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                 Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                 Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                 .default = Tuotantosuunta))
 
 GTK_aggregointi_elop_raiviot <- GTK_aggregointi_elop_raiviot %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
                                                                                                    Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
@@ -34,14 +34,14 @@ GTK_aggregointi_elop_raiviot <- GTK_aggregointi_elop_raiviot %>% mutate(Tuotanto
                                                                                                    .default = Tuotantosuunta))
 
 GTK_aggregointi_mineral <- GTK_aggregointi_mineral %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                             Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                             Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                             Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                             Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                             Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                             Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                             Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                             .default = Tuotantosuunta))
+                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                         .default = Tuotantosuunta))
 
 GTK_aggregointi_mineral_raiviot <- GTK_aggregointi_mineral_raiviot %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
                                                                                                          Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
@@ -52,7 +52,7 @@ GTK_aggregointi_mineral_raiviot <- GTK_aggregointi_mineral_raiviot %>% mutate(Tu
                                                                                                          Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
                                                                                                          Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
                                                                                                          .default = Tuotantosuunta))  
-                         
+
 #Tuotantosuuntaryhmien tasolle muunto
 
 
@@ -77,7 +77,7 @@ colnames(Tuotantosuuntaryhmat) <-
 #test<-length(outersect(GTKdata$Tuotantosuunta, Tuotantosuuntaryhmat$Tuotantosuunta))
 
 #if(test!=0)
-  #stop("Tuotantosuuntanimet eivät samat, kuin avaimessa")
+#stop("Tuotantosuuntanimet eivät samat, kuin avaimessa")
 
 #Yhdistetään tuotantosuuntaryhmän nimi tuotantosuuntanimen perusteella
 
@@ -85,7 +85,7 @@ colnames(Tuotantosuuntaryhmat) <-
 GTK_aggregointi_elop<-inner_join(GTK_aggregointi_elop, Tuotantosuuntaryhmat, by="Tuotantosuunta")
 
 GTK_aggregointi_elop_raiviot<-inner_join(GTK_aggregointi_elop_raiviot, Tuotantosuuntaryhmat, by="Tuotantosuunta")
-  
+
 GTK_aggregointi_mineral <- inner_join(GTK_aggregointi_mineral, Tuotantosuuntaryhmat, by="Tuotantosuunta")
 
 GTK_aggregointi_mineral_raiviot<- inner_join(GTK_aggregointi_mineral_raiviot, Tuotantosuuntaryhmat, by="Tuotantosuunta")
@@ -96,7 +96,7 @@ GTK_aggregointi_mineral_raiviot<- inner_join(GTK_aggregointi_mineral_raiviot, Tu
 
 
 
-  
+
 
 #Seuraavaksi yhdistetään tuotekoodi ja sitä vastaava ETTL-tuotenimi
 #Jokainen kasvikoodi vastaa jotain ettl tuotetta
@@ -206,23 +206,23 @@ GTK_aggregointi_elop <-
                                        values_from = Eloperaista_maata,
                                        values_fill = 0)
 GTK_aggregointi_elop_raiviot<-
-GTK_aggregointi_elop_raiviot %>% pivot_wider(names_from = Tuotantosuuntaryhmä,
-                                             values_from = Eloperaista_maata,
-                                             values_fill = 0)
+  GTK_aggregointi_elop_raiviot %>% pivot_wider(names_from = Tuotantosuuntaryhmä,
+                                               values_from = Eloperaista_maata,
+                                               values_fill = 0)
 GTK_aggregointi_mineral<-
-GTK_aggregointi_mineral %>% pivot_wider(names_from = Tuotantosuuntaryhmä,
-                                        values_from = Mineraalimaata,
-                                        values_fill = 0)
+  GTK_aggregointi_mineral %>% pivot_wider(names_from = Tuotantosuuntaryhmä,
+                                          values_from = Mineraalimaata,
+                                          values_fill = 0)
 GTK_aggregointi_mineral_raiviot<-
-GTK_aggregointi_mineral_raiviot %>% pivot_wider(names_from = Tuotantosuuntaryhmä,
-                                                values_from = Mineraalimaata,
-                                                values_fill = 0)
+  GTK_aggregointi_mineral_raiviot %>% pivot_wider(names_from = Tuotantosuuntaryhmä,
+                                                  values_from = Mineraalimaata,
+                                                  values_fill = 0)
 
 #Viljelyalan tarkistud
 sum(colSums(GTK_aggregointi_elop[4:length(GTK_aggregointi_elop)]))+
-sum(colSums(GTK_aggregointi_elop_raiviot[4:length(GTK_aggregointi_elop_raiviot)]))+
-sum(colSums(GTK_aggregointi_mineral[4:length(GTK_aggregointi_mineral)]))+
-sum(colSums(GTK_aggregointi_mineral_raiviot[4:length(GTK_aggregointi_mineral_raiviot)]))
+  sum(colSums(GTK_aggregointi_elop_raiviot[4:length(GTK_aggregointi_elop_raiviot)]))+
+  sum(colSums(GTK_aggregointi_mineral[4:length(GTK_aggregointi_mineral)]))+
+  sum(colSums(GTK_aggregointi_mineral_raiviot[4:length(GTK_aggregointi_mineral_raiviot)]))
 
 
 #Exportataan välitulokset
