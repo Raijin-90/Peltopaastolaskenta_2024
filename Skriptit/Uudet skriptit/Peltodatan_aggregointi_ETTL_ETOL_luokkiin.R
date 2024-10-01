@@ -13,7 +13,6 @@ GTK_mineraali <-
 #Yhdenmukainen kirjoitusasu
 GTK_mineraali$Tuotantosuunta[GTK_mineraali$Tuotantosuunta == "Lammas- ja vuohitilat"]<-"Lammas_ja_vuohitilat"
 GTK_mineraali$Tuotantosuunta[GTK_mineraali$Tuotantosuunta =="Muut nautakarjatilat"]<-"Muut_nautakarjatilat"
-GTK_mineraali$Tuotantosuunta[GTK_mineraali$Tuotantosuunta == "Hunajatuotanto"]<-"Hunajantuotanto"
 GTK_mineraali$Tuotantosuunta[GTK_mineraali$Tuotantosuunta == "Vihannekset ja juurekset"]<-"Vihannekset_juurekset"
 GTK_mineraali$Tuotantosuunta[GTK_mineraali$Tuotantosuunta ==   "Rypsi ja rapsi" ]<-"Rypsi_rapsi"
 GTK_mineraali$Tuotantosuunta[GTK_mineraali$Tuotantosuunta ==  "Öljyhampun ja pellavan viljely"]<-"Öljyhampun ja -pellavan viljely"

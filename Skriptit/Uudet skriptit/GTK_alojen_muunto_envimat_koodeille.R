@@ -91,13 +91,6 @@ GTK_aggregointi_mineral <- inner_join(GTK_aggregointi_mineral, Tuotantosuuntaryh
 GTK_aggregointi_mineral_raiviot<- inner_join(GTK_aggregointi_mineral_raiviot, Tuotantosuuntaryhmat, by="Tuotantosuunta")
 
 
-
-
-
-
-
-  
-
 #Seuraavaksi yhdistetään tuotekoodi ja sitä vastaava ETTL-tuotenimi
 #Jokainen kasvikoodi vastaa jotain ettl tuotetta
 

@@ -593,7 +593,8 @@ Tuotantosuuntaryhmat <-
     here("Data","Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx"),
     sheet = "Tuotantosuunnat ryhmittäin",
     col_types = c("text",
-                  "text"
+                  "text",
+                  "skip"
     )
   )
 colnames(Tuotantosuuntaryhmat) <-

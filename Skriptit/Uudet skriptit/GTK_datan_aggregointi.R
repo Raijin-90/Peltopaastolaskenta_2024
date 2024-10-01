@@ -7,6 +7,9 @@ Yhdistetty_peltodata_raivaukset_rehuvilja <- read_csv("Data/Yhdistetty_peltodata
                                                       col_types = cols(...1 = col_skip()))
 
 
+y<-unique(Yhdistetty_peltodata_raivaukset_rehuvilja$MAATILA_TUNNUS)
+
+
 
 library(readxl)
 Kasvikategoriat_avain <- read_excel(here("Data","Kasvikategoriat_avain.xlsx"), 
