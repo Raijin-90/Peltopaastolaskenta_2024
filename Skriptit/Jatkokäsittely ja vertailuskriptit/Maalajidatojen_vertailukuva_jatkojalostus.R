@@ -10,7 +10,7 @@ source_lines <- function(file, lines) {
 # Datojen nouto ja yhdistäminen ####
 
 #Noudetaan GTK-aineisto
-source_lines(here("Skriptit/GTK_datan_aggregointi.R"),1:259)
+source_lines(here("Skriptit/Uudet Skriptit/GTK_datan_aggregointi.R"),1:259)
 
 #Maalajien vertailua varten gtk-datan kasvulohkot täytyy yhdistää kuvaamaan kutakin peruslohkoa yhteensä. 
 #Näin siksi, ettei viljavuusaineisto tunnista kasvulohkoja samalla tarkkuudella. Se ei erota kasvulohkopolygoneja toisistaan nimeltä, vaan ainoastaan sisällöltä (1 peruslohko = monta riviä, jos monta kasvulohkoa).
