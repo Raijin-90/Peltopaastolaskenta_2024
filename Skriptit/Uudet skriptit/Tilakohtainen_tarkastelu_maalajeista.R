@@ -270,7 +270,12 @@ Kertymä<-Kertymä %>% select(1,2,3)
 Kertymä<-Kertymä %>% arrange(desc(Eloperaista))
 Kertymä<-Kertymä %>% mutate(Laskuri =seq(1, nrow(Kertymä), 1))
 
-Kertymä<-Kertymä %>% mutate(Pros=100*Eloperaista/sum(Eloperaista))
+Kertymä<-Kertymä %>% mutate(Pros=cumsum(100*Eloperaista/sum(Eloperaista)))
+
+
+
+
+
 
 b<-Kertymä %>% ggplot(aes(x = Laskuri, y = cumsum(Pros))) +  
   theme_bw() + 
@@ -283,10 +288,15 @@ Kertyma_ts<-Tiladata
 Kertyma_ts<-Kertyma_ts %>% 
   group_by(Tuotantosuuntaryhmä) %>%
   arrange(Tuotantosuuntaryhmä,desc(Eloperaista)) %>% 
-  mutate(Kumul_pros = 100*Eloperaista/sum(Eloperaista)) %>%
+  mutate(Kumul_pros = cumsum(100*Eloperaista/sum(Eloperaista))) %>%
   mutate(Juokseva_numerointi = row_number(Tuotantosuuntaryhmä))
-  
-  
-  
+
+
+library(openxlsx)
+write.xlsx(Kertyma_ts,file="kokeilu.xlsx")
+
+Kertyma_ts<-Kertyma_ts %>% select(Juokseva_numerointi, Tuotantosuuntaryhmä, Kumul_pros) %>% pivot_wider(values_from = Kumul_pros, names_from = Tuotantosuuntaryhmä)
+
+write.xlsx(Kertyma_ts, file=here("Turvekumulaatio_levea.xlsx"))  
 
 
