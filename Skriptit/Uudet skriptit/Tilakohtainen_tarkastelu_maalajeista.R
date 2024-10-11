@@ -135,7 +135,7 @@ Tiladata <- read_excel("Output/AreaAggregates/Tilatason_tarkastelu/Tiladatan_tal
 
 
 #ETOL nimien englanninnos
-Tiladta<a-Tiladata %>% mutate(Tuotantosuuntaryhmä = case_when(Tuotantosuuntaryhmä == "Hedelmien viljely" ~ "Fruits",
+Tiladata<-Tiladata %>% mutate(Tuotantosuuntaryhmä = case_when(Tuotantosuuntaryhmä == "Hedelmien viljely" ~ "Fruits",
                                                                       Tuotantosuuntaryhmä == "Hevostilat" ~ "Horse farms",
                                                                       Tuotantosuuntaryhmä == "Hunajatuotanto, muu eläimen hoito" ~ "Honey production",
                                                                       Tuotantosuuntaryhmä == "Kauran, ohran, rukiin ja vehnän viljely" ~ "Oat, barley, rye and wheat",
@@ -160,9 +160,6 @@ Tiladta<a-Tiladata %>% mutate(Tuotantosuuntaryhmä = case_when(Tuotantosuuntaryh
                                                                       Tuotantosuuntaryhmä == "Yrttien viljely avomaalla" ~ "Open-ground herbs",
                                                                       Tuotantosuuntaryhmä == "Öljyhampun ja -pellavan viljely" ~ "Oilseed hemp and -flax",
                                                                       Tuotantosuuntaryhmä == "Total" ~ "Total"))
-
-
-
 
 #Desiilit tuotantosuunta huomioituna 
 
@@ -208,7 +205,6 @@ write.xlsx(Desiilit_ts, file=here("Output/AreaAggregates/Tilatason_tarkastelu/De
 write.xlsx(Desiilit_kaikkiaan, file=here("Output/AreaAggregates/Tilatason_tarkastelu/Desiilit_kaikkiaan.xls"),overwrite = T)
 
 
-write.xls
 
 
  
@@ -272,7 +268,7 @@ Kertymä<-Kertymä %>% mutate(Laskuri =seq(1, nrow(Kertymä), 1))
 
 Kertymä<-Kertymä %>% mutate(Pros=cumsum(100*Eloperaista/sum(Eloperaista)))
 
-
+write.xlsx(Kertymä, file=here("Output/Tilat_desiilitaulut/Kertyma_kaikkiaan.xlsx"))
 
 
 
@@ -289,11 +285,12 @@ Kertyma_ts<-Kertyma_ts %>%
   group_by(Tuotantosuuntaryhmä) %>%
   arrange(Tuotantosuuntaryhmä,desc(Eloperaista)) %>% 
   mutate(Kumul_pros = cumsum(100*Eloperaista/sum(Eloperaista))) %>%
-  mutate(Juokseva_numerointi = row_number(Tuotantosuuntaryhmä))
+  mutate(Juokseva_numerointi = row_number(Tuotantosuuntaryhmä)) %>%
+  mutate(tilan_osuus_tuotantosuunnan_turpeesta = 100*Eloperaista/sum(Eloperaista))
 
 
 library(openxlsx)
-write.xlsx(Kertyma_ts,file="kokeilu.xlsx")
+
 
 Kertyma_ts<-Kertyma_ts %>% select(Juokseva_numerointi, Tuotantosuuntaryhmä, Kumul_pros) %>% pivot_wider(values_from = Kumul_pros, names_from = Tuotantosuuntaryhmä)
 

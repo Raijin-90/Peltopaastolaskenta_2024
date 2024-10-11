@@ -6,71 +6,64 @@ library(tidyverse)
 
 #PÄÄSTÖKERROINTEN MÄÄRITTELY ####
 #Syötetään päästökertoimet. 
-#Huomaa, että desimaalitarkkuuden ero voi muuttaa tulosta suhteessa verrokkiin. Jos inventaarin luku on tarkkuutta 24.1538 ja sinulla 24.15, tulee pientä heittoa verrokkiin. 
+#Noudetaan crf taulusta 2017. Poikkeuksena cropland remaining cropland (organic soils), jossa Perennial/annual jaottelu. Nämä NIR-raportista s. 330, LULUCF-luvun alta.  
+#Sisältää "Net carbon stock change in soils", "Living biomass" ja "Dead organic matter" kategoriat.  
+
+#Nielut ja päästöt huomioidaan molemmat. 
 
 
-#CROPLAND REMAINING CROPLAND & GRASSLAND REMAINING GRASSLAND, MINERAL SOILS
-#Viljelyn CO2 t CO2e/ha
-
-viljely_CO2_cropland_mineral<-0.237 #Tarkistettu.Noudetaan crf taulusta 2017. 
-
-#Vastaa CRF dokumentaation arvoa, laskettuna maaperän hiilitaseen muutoksesta ((-0,06*3,67)*-1). 
-#Perennoja ja yksivuotisia ei eritellä. 
+#CROPLAND REMAINING CROPLAND, MINERAL SOILS 
 
 
-viljely_CO2_grassland_mineral<-0  #Tarkistettu. Noudetaan crf taulusta.
-#Vastaa CRF dokumentaation arvoa. NA, 
-#sillä grasslands on suomessa voittopuolisesti hylättyä niittyalaa, jonka hiilitaseeseen ei mallinnettu muutosoletuksia inventaarissa. Kts. inventaari s.330
-#Perennoja ja yksivuotisia ei eritellä
-
-#Muutos: lisätään mukaan 2017 GHG-inventaarin "GREENHOUSE GAS EMISSIONS IN FINLAND 1990 to 2017" sivun 319 perennial/yksivuotiset-jaottelu eloperäisten maiden osalta.  
-
-
-## GRASSLAND REMAINING GRASSLAND, ORGANIC SOILS. ####
-viljely_CO2_grassland_elop<-12.85 #Tarkistettu. Noudetaan CRF-taulusta. Yksi ja monivuotisia ei eritellä. 
-
-#Vastaa Maljanen 2010 kerrointa (3.5 t C ha-1 a-1) inventaarin sivulla 334, joka muunnettu CO2:ksi kertomalla likiarvolla 3.67 (ts. osamäärällä 44/12 kuten inventaari sen esittää)
-#Inventaari lähtee siitä, että sen "grassland" on voittopuolisesti hylättyä ruohikkomaata. Vastannee hyvin meidän luokitustamme, sillä meidän grassland-kategoriamme sisältää sadottomat ruohikkomaat kuten laitumet, kesannot yms, joita tuskin maanmuokataan merkittävästi. 
+viljely_CO2_cropland_mineral<-0.24
 
 ## CROPLAND REMAINING CROPLAND, ORGANIC SOILS ####
 
-viljely_CO2_cropland_elop_annual_crops <-28.993 #Tarkistettu. Noudetaan inventaarin raportista s. 330, vastaa arvoa 7.9 t C ha-1 muunnettuna CO2:ksi. 
-#Eloperäisen croplandin perennat ja yksivuotiset lasketaan omilla kertiomillaan
+viljely_CO2_cropland_elop_annual_crops <-28.97 #Tarkistettu. Noudetaan inventaarin raportista s. 330, vastaa arvoa 7.9 t C ha-1 muunnettuna CO2:ksi. 
+#Eloperäisen croplandin perennat ja yksivuotiset lasketaan omilla kertiomillaan, jotka NIR raportissa. 
 
 
-viljely_CO2_cropland_elop_grass<-20.919 #Tarkistettu, Vastaa inventaarin raportin s. 330 arvoa 5.7 t C ha-1 kun muunnetaan CO2:ksi. ( x 3.67)
+
+viljely_CO2_cropland_elop_grass<-20.90 #Tarkistettu, Vastaa inventaarin raportin s. 330 arvoa 5.7 t C ha-1 kun muunnetaan CO2:ksi. ( x 3.67)
 # kts. inventaari s. 330. 
 # For calculating CO2 emissions from cropland remaining as cropland on organic soils, the emission factors are 5.7 t C ha-1 for grass and 7.9 t C ha-1 for annual crops (IPCC 2014b). Muista muuntaa CO2:ksi...
 # Vaikka  käyttää termiä "grasses", nyt on puhe CROPLANDIN SISÄLLÄ olevista monivuotisista SADOLLISISTA nurmista, ts. rehunurmista, ja marja-hedelmätuotteista, jotka kuuluvat croplandiin.
-
-#Tarkistettu, kts. inventaari s 330
-# Eri asia kuin esim. laidunmaa ja hylätty peltoon, josta inventaari puhuu grasslandina myös. Nämä käsitellään r. 18. 
 # Croplands-kasvit ovat lähestulkoon aina annual, eli niillä on viljelykierto. Ainoastaan monivuotiset rehunurmet ja hedelmät/marjat ovat poikkeuksia, ja tämä kerroin on niille. On myös pienempi, kuin annualien (yllä), kuten kuuluu. 
+
+
+#GRASSLAND REMAINING GRASSLAND, MINERAL
+
+viljely_CO2_grassland_mineral<- -0.69 #CRF taulusta, päästönielu
+
+## GRASSLAND REMAINING GRASSLAND, ORGANIC SOILS. ####
+viljely_CO2_grassland_elop<-12.15 # CRF-taulusta. 
+
+#Vastaa Maljanen 2010 kerrointa (3.5 t C ha-1 a-1) inventaarin sivulla 334, joka muunnettu CO2:ksi kertomalla likiarvolla 3.67 (ts. osamäärällä 44/12)
+#Inventaari lähtee siitä, että sen "grassland" on voittopuolisesti hylättyä ruohikkomaata. 
+#Vastannee hyvin meidän luokitustamme, sillä meidän grassland-kategoriamme sisältää sadottomat ruohikkomaat kuten laitumet, kesannot yms, joita tuskin maanmuokataan merkittävästi. 
+
+
 
 
 ## LAND CONVERTED TO CROP/GRASSLAND ####
 #Raivauksen CO2
-#Muutos 6.11.2023: Laskettu CRF-taulun perusteella land converted-alakategorioiden kerrointen painotettu keskiarvo. Alkuperäiset arvot olivat alakategorioiden summaparametri, ei keskiarvo. q
-#Tässä huomioidaan muut alaluokat paitsi grassland converted to cropland tai toisin päin. Näin siksi, että siinä on kyseessä vanhan lohkon käyttötavan muutos, ei uusien lohkojen luonti. 
+
 #Näitä käytetään ainoastaan raivaus-frameen, jossa ei ole mukana muita kuin raivatut lohkot. Vastaavasti viljelyframe ei sisällä raivattuja lainkaan. 
 
-raivaus_CO2_cropland_mineral<-1.81764933+3.9 #Tarkistettu. Noudetaan CRF taulusta. Yksi- ja monivuotisia kasveja ei eritellä.  
-#Vastaa CRF-taulun hiilitaseen muutosta, n. 0.5*3.67
-#Kuten viljelykertoimissa, mineraalimaiden arvo pohjautuu inventaarissa mallinnuksiin.  
-#1.8 on raivauksesta aiheutuva maaperän hiilen hajoamispäästö. 3.9 taas biomassan hävikki. 
+raivaus_CO2_cropland_mineral<-5.76 #Tarkistettu. Noudetaan CRF taulusta. Yksi- ja monivuotisia kasveja ei eritellä.  
 
-raivaus_CO2_grassland_mineral<--0.54+0.95 #Tarkistettu, noudetaan CRF-taulusta. Yksi ja monivuotisia kasveja ei eritellä. 
-#vastaa CRF-taulun arvoa "Land converted to grassland", n. 0.146774 *3,67. Kts. Hiilimenetyksen määrän arviointi inventaarissa: inventaari s. 335
+
+raivaus_CO2_grassland_mineral<-0.41
+#Tarkistettu, noudetaan CRF-taulusta. Yksi ja monivuotisia kasveja ei eritellä. 
 
 
 
+raivaus_CO2_cropland_elop<-28.88
 
-raivaus_CO2_cropland_elop<-24.96+3.9 #Tarkistettu, Noudetaan CRF-taulusta. Yksi- ja monivuotisia ei eritellä
-#vastaa CRF-taulun arvoa "Cropland converted to cropland", hiilitaseen muutos -6,8*3,67. Sama arvo käytössä croplandin yksi- ja monivuotisille kasveille. 
-#Kts. inventaari s. 331: "The emissions from organic forest soils or grassland soils converted to cropland were calculated according to Tier 2 methodology 
-#using the mean emission factor for the cultivation of grass or other crops on organic soils (6.8 t C ha-1) (IPCC 2014b)
 
-raivaus_CO2_grassland_elop<-12.845+0.95 #Sama kerroin kuin viljelty grassland eloperäisillä mailla. 
+
+raivaus_CO2_grassland_elop<-13.79
+#Sama kerroin kuin viljelty grassland eloperäisillä mailla. 
 #Yksi ja monivuotisia ei eritellä. Noudetaan CRF-taulusta. 
 
 
@@ -663,9 +656,11 @@ Tuotantosuuntaryhmat <-
     here("Data","Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx"),
     sheet = "Tuotantosuunnat ryhmittäin",
     col_types = c("text",
+                  "text",
                   "text"
     )
   )
+Tuotantosuuntaryhmat$ETOL_koodi<-NULL
 colnames(Tuotantosuuntaryhmat) <-
   c("Tuotantosuunta", "Tuotantosuuntaryhmä")
 

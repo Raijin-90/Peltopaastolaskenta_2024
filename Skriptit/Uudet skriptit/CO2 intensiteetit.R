@@ -921,7 +921,7 @@ Satokertoimet<-merge(Cropland_yhdistetyt_paastot_tuoteryhmät,yhd_sato, by="Tuot
 #Kategoria "Kesannot,laitumet,yms." sisältää Siirtonurmen, joka kyllä tuottaa sadon eli kerätään tuote, mutta satokerrointa sille ei ole. 
 Satokertoimet<-Satokertoimet %>% filter(complete.cases(.))
 
-
+Satokertoimet<- Satokertoimet %>% mutate(Kerroin_t_CO2_tn= Paasto_CO2_t/Satotonnia)
 
 
 #Europohjaiset kertoimet #### 
@@ -945,7 +945,7 @@ Eurokertoimet<-merge(Cropland_yhdistetyt_paastot_tuoteryhmät, Yhdistetyt_pellon
 
 Eurokertoimet<-Eurokertoimet %>% filter(complete.cases(.))
 
-
+Eurokertoimet<- Eurokertoimet %>% mutate(Kerroin_t_CO2_kEUR = Paasto_CO2_t/Tuhatta_euroa)
 
 #Viljojen yksittäiset kertoimet
 #Yhdistetaan yksittaisten viljojen sadot ja CO2-paastot

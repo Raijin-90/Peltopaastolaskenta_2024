@@ -218,8 +218,8 @@ sum(Grassland_elop_alat_raivio[6:length(Grassland_elop_alat_raivio)])
 
 
 
-
-
+Lohkoja<-GTKdata %>% select(1,2) 
+Lohkoja<-unique(Lohkoja)
 
 
 print("GTK-datan tasokorjaus suoritettu")

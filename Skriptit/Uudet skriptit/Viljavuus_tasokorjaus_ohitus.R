@@ -9,7 +9,7 @@ library(usefun)
 
 
 #Ennen tätä aja esikäsittelyskripti:
-source(here("Skriptit", "Viljavuus_esikasittely_aggregointi.R"))
+source(here("Skriptit/Uudet skriptit", "Viljavuus_esikasittely_aggregointi.R"))
 #Se luo tarvittavat korjaukset ja aggregaatit, jotka ladataan seuraavana sisään.
 
 Viljavuus_Kaikki <-
