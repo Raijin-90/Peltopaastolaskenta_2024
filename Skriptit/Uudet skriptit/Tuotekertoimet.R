@@ -91,11 +91,25 @@ Hajonta_viljav <-
 rm(CO2_tuotekertoimet_viljav, N2O_tuotekertoimet_viljav)
 
 
+#Lasketaan gtk-datan pohjalta euromääräiset verrokkikertoimet varsinaisille, tonnimääräisille kertoimille jotta suhteutustavan vaihdosta syntyvät erot (massa vs euroarvo) voi demota
+
+Euromaar_esimerkki<-Tuotekertoimet_gtk %>% group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = sum(Satotonnia),
+                                                                              Kiloeuroa_yht = sum(Tuhatta_euroa),
+                                                                             CO2eq_t_yht = sum(CO2_tonnia),
+                                                                             Kiloeuroa_yht = sum(Laskuri))
+Euromaar_esimerkki<-Euromaar_esimerkki %>% select(Tuoteryhmä,
+                              CO2eq_t_yht,
+                              Kiloeuroa_yht,
+                              ) %>% mutate(tn_co2_keur = CO2eq_t_yht/Kiloeuroa_yht) 
 
 
+#Hajonnan kytkeminen
 
+Eurohajonta_gtk <- Hajonta_gtk %>% select(1,3)
 
+Euromaar_esimerkki <- inner_join(Euromaar_esimerkki, Eurohajonta_gtk, by="Tuoteryhmä")
 
+write.xlsx(Euromaar_esimerkki, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/GTK_tuotekerrointaulu_eurokertoimet.xlsx")) 
 
 
 #Rinnastetaan t/t kertoimet gtk-aineistosta ja viljavuudesta. Lasketaan kerroin tuoteryhmälle, sekä  kerrointen hajonta ryhmän sisällä

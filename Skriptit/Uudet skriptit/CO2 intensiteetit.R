@@ -487,6 +487,7 @@ Paastot_tuotteille<-merge(Paastot_tuotteille, Tuotteiden_eurot_sadot, by=c("Kasv
 
 
 
+
 #Irrotetaan yksittäisten viljojen CO2 emissio
 
 Viljapaastot_CO2<-Cropland_yhdistetyt_paastot %>% filter(Kasvikoodi %in% Viljakoodit)
