@@ -175,7 +175,7 @@ addWorksheet(Verrokit, "Verrokkikertoimet_sato")
 writeData(Verrokit, "Verrokkikertoimet_sato", Paastokertoimet_sato)
 addWorksheet(Verrokit, "Verrokkikertoimet_euro")
 writeData(Verrokit, "Verrokkikertoimet_euro", Paastokertoimet_euro)
-saveWorkbook(Verrokit, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/Herkkystarkastelu_verrokkikertoimet_gtk.xlsx"), overwrite = T)
+saveWorkbook(Verrokit, file=here("Output/Herkkyystarkastelu/Yhdistetty_RAC/Herkkystarkastelu_verrokkikertoimet_gtk.xlsx"), overwrite = T)
 
 
 

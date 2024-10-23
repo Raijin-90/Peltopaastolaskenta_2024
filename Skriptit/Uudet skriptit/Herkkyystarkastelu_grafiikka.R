@@ -75,12 +75,13 @@ gtsave(Satotaulukko, filename = "Satotaulu.docx", path=here("Output/Herkkyystark
 Graph1<-Satopohjaiset %>% 
   ggplot(aes(x=factor(Coeff_name, ord), y=Coeff, fill=Crop))+
   geom_bar(stat="identity")+
+  scale_fill_grey()+
   facet_wrap(~Crop)+
   xlab(NULL)+
   ylab(expression("tn"~"CO"[2]~"eq"~"tn"^"-1"))+
   theme(axis.text.x = element_text(angle = 50, hjust=1))+
   theme(legend.position = "none") 
-ggsave(filename="Herkkyystarkastelu_gtk_sato_uusi.tiff", path = here("Output/Grafiikka"))
+ggsave(filename="Herkkyystarkastelu_gtk_bw.svg", path = here("Output/Grafiikka"))
   
 
 #Europohjaiset kertoimet

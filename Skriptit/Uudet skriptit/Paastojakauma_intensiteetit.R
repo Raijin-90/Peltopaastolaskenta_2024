@@ -89,6 +89,19 @@ Jakaumataulu %>% summarise(CO2_summa_viljav = sum(CO2eq_tn_viljav)/1000000,
                            GTK_hehtaarit = sum(Ala_yhteensä_gtk))
 
 
+Hajonnat_tauluun<-Jakaumataulu %>% group_by(Ryhmittely) %>% summarise(Hajontaluku_gtk_kerroin = sd(Paastokerroin_tn_CO2eq_ha_gtk),
+                                                                      Hajontaluku_viljav_kerroin = sd(Paastokerroin_tn_CO2eq_ha_viljav)) 
+
+
+
+
+Hajonnat_koko_data<-Jakaumataulu %>% summarise(Keskiarvo_gtk=round(mean(Paastokerroin_tn_CO2eq_ha_gtk),2),
+                           Keskiarvo_viljavuus = round(mean(Paastokerroin_tn_CO2eq_ha_viljav),2),
+  Hajonta_gtk = round(sd(Paastokerroin_tn_CO2eq_ha_gtk),2),
+                           Hajonta_viljav =round(sd(Paastokerroin_tn_CO2eq_ha_viljav),2))
+
+
+
 gt(Jakaumataulu) %>%
   sub_missing() %>%
   fmt_number(columns = c(2:3,5:6), decimals = 0, sep_mark = " ") %>%
@@ -139,9 +152,15 @@ summary_rows(groups = matches("Animal farms"), columns =c(4,7) , fns = list(
              reverse=F) 
 
 
+
+
+
+
+
 sum(Jakaumataulu$CO2eq_tn_gtk)
 sum(Jakaumataulu$CO2eq_tn_viljav)
 
 sum(Jakaumataulu$Ala_yhteensä_gtk)
 sum(Jakaumataulu$Ala_yhteensä_viljav)
 
+library(openxlsx)

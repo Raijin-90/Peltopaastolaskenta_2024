@@ -357,7 +357,7 @@ Min_Org<-Min_Org %>% mutate(Mineraalipros = 100*(lohkolukum_min/lohkoja_yht),
                    Turvepros = 100*(lohkolukum_elop/lohkoja_yht))
 Min_Org<-Min_Org %>% select(1,2,5,3,6,4)
 
-write.xlsx(Min_Org, file = here("Output/Yksinkertaistettu_intensiteettil/Maalajivertailun_luvut.xlsx"))
+write.xlsx(Min_Org, file = here("Output/Yksinkertaistettu_intensiteettilaskenta/Maalajivertailun_luvut.xlsx"))
 library(gt)
 gt(Min_Org, groupname_col = NULL) %>%
   cols_label(Turveprosentti_luokitus_gtk = "% of organic soils, geospatial data",

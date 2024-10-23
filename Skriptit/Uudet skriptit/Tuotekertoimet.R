@@ -2,7 +2,7 @@
 #Muutos 23/8/24: 
 #Poistetaan N2O laskennasta
 
-library(tidyverse);library(here)
+library(tidyverse);library(here);library(openxlsx)
 
 
 #GTK data
@@ -243,8 +243,8 @@ Kuva<-rbind(z,x)
 
 library(scales)
 Kuva %>% ggplot(mapping = aes(x = RAC, y = Coefficient, fill = Dataset)) +
-  theme_bw() +
   geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_grey()+
   geom_errorbar(
     aes(ymin = Coefficient, ymax = Coefficient + SD),
     width = .2,
@@ -252,8 +252,9 @@ Kuva %>% ggplot(mapping = aes(x = RAC, y = Coefficient, fill = Dataset)) +
   ) +
   ylab(expression("tn" ~ "CO"["2"] ~ "-eq." ~ "tn" ^ -1)) +  
   xlab("Crop")+
-  scale_x_discrete(labels = label_wrap(10)) 
- ggsave(filename="Kerroinvertailu_korjattu_23.8.2024.tiff", dpi = 1200, path = here("Output/Grafiikka"))
+  scale_x_discrete(labels = label_wrap(10))+
+  theme_classic() 
+ ggsave(filename="Kerroinvertailu_bw.tiff", dpi = 1200, path = here("Output/Grafiikka"))
   
 #Potut ja sugarbeet pelkkään taulukkoon? Nyt niiden välistä eroa ei näe
 
