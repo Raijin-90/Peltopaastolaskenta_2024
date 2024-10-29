@@ -261,8 +261,27 @@ GTKdata<-GTKdata %>% mutate(Mineraaliprosentti = (Mineraalia/Maannossumma)*100,
 z<-unique(GTKdata$PLTUNNUS)
 
 
+
+
+
+
+
 #Pinta-alojen aggregointi ####
 #Aggregoidaan tuote- ja tuotantosuuntatasolla koko datamassasta
+
+GTK_aggregointi_kaikki_maa<-
+  aggregate(
+    list(GTKdata$Maannossumma),
+    by = list(
+      GTKdata$Tuotantosuunta,
+      GTKdata$KASVIKOODI_lohkodata_reclass,
+      GTKdata$KASVINIMI_reclass
+    ),
+    sum
+  )
+colnames(GTK_aggregointi_kaikki_maa) <-
+  c("Tuotantosuunta", "Kasvikoodi", "Kasvinimi", "Peltoala_ha")
+
 
 GTK_aggregointi_mineral <-
   aggregate(

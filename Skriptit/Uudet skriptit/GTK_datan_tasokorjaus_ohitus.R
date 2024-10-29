@@ -38,7 +38,6 @@ gc()
 
 
 
-
 #Data matriisimuotoiseksi, NA:n muutos nolliksi
 GTK_mineraali <-
   spread(GTK_aggregointi_mineral,

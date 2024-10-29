@@ -571,17 +571,13 @@ rm(
   Cropland_korotettu_mineraalimaa,
   Cropland_korotettu_mineraalimaa_raivio,
   Grassland_korotettu_mineraalimaa,
-  Grassland_korotettu_mineraalimaa_raivio,
-  a,
-  b 
+  Grassland_korotettu_mineraalimaa_raivio
 )
 rm(Cropland_elop,
    Cropland_mineral,
    Grassland_elop,
-   Grassland_mineral, 
-   Viljavuus_Kaikki,
-   Viljavuus_Kaikki_elop,
-   Viljavuus_Kaikki_min)
+   Grassland_mineral 
+   )
 
 
 #Lisäys  08/23: päästöt voidaan myös aggregoida tuotantosuuntatasolle, jotta näkee miten päästökakku jakautuu niiden kesken.

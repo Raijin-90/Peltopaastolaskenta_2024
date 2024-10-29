@@ -88,7 +88,7 @@ Hajonta_viljav <-
 
 
 
-rm(CO2_tuotekertoimet_viljav, N2O_tuotekertoimet_viljav)
+rm(CO2_tuotekertoimet_viljav)
 
 
 #Lasketaan gtk-datan pohjalta euromääräiset verrokkikertoimet varsinaisille, tonnimääräisille kertoimille jotta suhteutustavan vaihdosta syntyvät erot (massa vs euroarvo) voi demota
@@ -110,6 +110,22 @@ Eurohajonta_gtk <- Hajonta_gtk %>% select(1,3)
 Euromaar_esimerkki <- inner_join(Euromaar_esimerkki, Eurohajonta_gtk, by="Tuoteryhmä")
 
 write.xlsx(Euromaar_esimerkki, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/GTK_tuotekerrointaulu_eurokertoimet.xlsx")) 
+
+
+#Samat viljavuudelle
+
+Euromaar_esimerkki_viljav<-Tuotekertoimet_viljav %>% group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = sum(Satotonnia),
+                                                                              Kiloeuroa_yht = sum(Tuhatta_euroa),
+                                                                              CO2eq_t_yht = sum(CO2_tonnia),
+                                                                              Kiloeuroa_yht = sum(Laskuri))
+
+Eurohajonta_viljav <- Hajonta_viljav %>% select(1,3)
+
+Euromaar_esimerkki_viljav <- inner_join(Euromaar_esimerkki_viljav, Eurohajonta_viljav, by="Tuoteryhmä")
+
+write.xlsx(Euromaar_esimerkki_viljav, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/VIljav_tuotekerrointaulu_eurokertoimet.xlsx")) 
+
+
 
 
 #Rinnastetaan t/t kertoimet gtk-aineistosta ja viljavuudesta. Lasketaan kerroin tuoteryhmälle, sekä  kerrointen hajonta ryhmän sisällä
@@ -232,7 +248,7 @@ colnames(b)<-c("RAC","SD")
 b$Dataset <-"Soil fertility"
 
 
-z<-merge(a, b, by=c("RAC","Dataset")) # VIljavuusosa
+z<-merge(a, b, by=c("RAC","Dataset")) # Villainous
 
 
 #yhdistetään molemmat datat kuvan piirtämistä varten7

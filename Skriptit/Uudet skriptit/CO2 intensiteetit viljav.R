@@ -547,6 +547,9 @@ Paastot_tuotteille<-merge(Paastot_tuotteille, Tuotteiden_eurot_sadot, by=c("Kasv
 
 
 
+
+
+
 #Irrotetaan yksittäisten viljojen CO2 emissio
 
 Viljapaastot_CO2<-Cropland_yhdistetyt_paastot %>% filter(Kasvikoodi %in% Viljakoodit)
@@ -633,9 +636,7 @@ rm(
   Cropland_korotettu_mineraalimaa,
   Cropland_korotettu_mineraalimaa_raivio,
   Grassland_korotettu_mineraalimaa,
-  Grassland_korotettu_mineraalimaa_raivio,
-  a,
-  b 
+  Grassland_korotettu_mineraalimaa_raivio
 )
 rm(Cropland_elop,
    Cropland_mineral,
