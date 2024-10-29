@@ -15,6 +15,7 @@ CO2_tuotekertoimet_gtk <-
 
 Tuotekertoimet_gtk <- CO2_tuotekertoimet_gtk 
 
+
 #Dropataan "Kesannot yms" sekä "Muut kasvit
 
 Tuotekertoimet_gtk <-
@@ -46,6 +47,7 @@ Hajonta_gtk <-
                                                                  Hajonta_eurokerroin_gtk = sd(Paastokerroin_t_CO2eq_kEUR))
 
 
+rm(CO2_tuotekertoimet_gtk)
 
 
 #Viljavuusdata
@@ -91,42 +93,6 @@ Hajonta_viljav <-
 rm(CO2_tuotekertoimet_viljav)
 
 
-#Lasketaan gtk-datan pohjalta euromääräiset verrokkikertoimet varsinaisille, tonnimääräisille kertoimille jotta suhteutustavan vaihdosta syntyvät erot (massa vs euroarvo) voi demota
-
-Euromaar_esimerkki<-Tuotekertoimet_gtk %>% group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = sum(Satotonnia),
-                                                                              Kiloeuroa_yht = sum(Tuhatta_euroa),
-                                                                             CO2eq_t_yht = sum(CO2_tonnia),
-                                                                             Kiloeuroa_yht = sum(Laskuri))
-Euromaar_esimerkki<-Euromaar_esimerkki %>% select(Tuoteryhmä,
-                              CO2eq_t_yht,
-                              Kiloeuroa_yht,
-                              ) %>% mutate(tn_co2_keur = CO2eq_t_yht/Kiloeuroa_yht) 
-
-
-#Hajonnan kytkeminen
-
-Eurohajonta_gtk <- Hajonta_gtk %>% select(1,3)
-
-Euromaar_esimerkki <- inner_join(Euromaar_esimerkki, Eurohajonta_gtk, by="Tuoteryhmä")
-
-write.xlsx(Euromaar_esimerkki, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/GTK_tuotekerrointaulu_eurokertoimet.xlsx")) 
-
-
-#Samat viljavuudelle
-
-Euromaar_esimerkki_viljav<-Tuotekertoimet_viljav %>% group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = sum(Satotonnia),
-                                                                              Kiloeuroa_yht = sum(Tuhatta_euroa),
-                                                                              CO2eq_t_yht = sum(CO2_tonnia),
-                                                                              Kiloeuroa_yht = sum(Laskuri))
-
-Eurohajonta_viljav <- Hajonta_viljav %>% select(1,3)
-
-Euromaar_esimerkki_viljav <- inner_join(Euromaar_esimerkki_viljav, Eurohajonta_viljav, by="Tuoteryhmä")
-
-write.xlsx(Euromaar_esimerkki_viljav, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/VIljav_tuotekerrointaulu_eurokertoimet.xlsx")) 
-
-
-
 
 #Rinnastetaan t/t kertoimet gtk-aineistosta ja viljavuudesta. Lasketaan kerroin tuoteryhmälle, sekä  kerrointen hajonta ryhmän sisällä
 
@@ -138,7 +104,6 @@ a<-Tuotekertoimet_gtk %>% group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = s
 
 a<-a %>% mutate(Paastokerroin_t_CO2eq_t = CO2eq_t_yht/Satotonnia_yht)
 
-a<-a %>% mutate(Paastokerroin_t_CO2eq_t = CO2eq_t_yht/Satotonnia_yht) 
 
 #Hajonnan liittäminen
 
@@ -160,27 +125,59 @@ a<-a %>% select(1:3,5:6,4)
 
 library(openxlsx)
 taulukointi<-createWorkbook()
-addWorksheet(taulukointi, "gtk_tuotekerrointaulukko")
-writeData(taulukointi,"gtk_tuotekerrointaulukko",a )
+addWorksheet(taulukointi, "gtk_tuotekerrointaulukko_sato")
+writeData(taulukointi,"gtk_tuotekerrointaulukko_sato",a )
+
+
+#Euroille gtk kerroin
+
+
+b<-Tuotekertoimet_gtk %>% group_by(Tuoteryhmä) %>% summarise(Tuhatta_euroa = sum(Tuhatta_euroa), 
+                                                             CO2eq_t_yht = sum(CO2_tonnia),
+                                                             Tuotteita_ryhmassa = sum(Laskuri))
+
+
+b<-b %>% mutate(Paastokerroin_t_CO2eq_keur = CO2eq_t_yht/Tuhatta_euroa)
+
+#Hajonnan liittäminen
+
+b<-b %>% inner_join(Hajonta_gtk, by="Tuoteryhmä") 
+b<-b %>% select(-6)
+
+colnames(b)<-  c(
+  "Tuoteryhmä",
+  "tuhatta_euroa",
+  "CO2eq_t_yht_gtk",
+  "Tuotteita_ryhmassa",
+  "Paastokerroin_t_CO2eq_keur_gtk",
+  "Hajonta_eurokerroin_gtk"
+  
+)
+
+b<-b %>% select(1:3,5:6,4)
+
+addWorksheet(taulukointi, "gtk_tuotekerrointaulukko_euro")
+writeData(taulukointi,"gtk_tuotekerrointaulukko_euro",b )
+
 saveWorkbook(taulukointi, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/GTK_tuotekerrointaulu.xlsx"), overwrite = T)
 
 
 
 #Satomääräinen viljavuuskerroin
 
-b<-Tuotekertoimet_viljav %>%  group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = sum(Satotonnia), 
+c<-Tuotekertoimet_viljav %>%  group_by(Tuoteryhmä) %>% summarise(Satotonnia_yht = sum(Satotonnia), 
                                                                    CO2eq_t_yht = sum(CO2_tonnia),
                                                                    Tuotteita_ryhmassa = sum(Laskuri))
-b<-b %>% mutate(Paastokerroin_t_CO2eq_t = CO2eq_t_yht/Satotonnia_yht) 
+c<-c %>% mutate(Paastokerroin_t_CO2eq_t = CO2eq_t_yht/Satotonnia_yht) 
 
 
 #Hajonnan liittäminen
 
-b<-b %>% inner_join(Hajonta_viljav, by="Tuoteryhmä")
-b<-b %>% select(-7)
-b<-b %>% select(1:3,5:6,4)
+c<-c %>% inner_join(Hajonta_viljav, by="Tuoteryhmä")
+c<-c %>% select(-7)
+c<-c %>% select(1:3,5:6,4)
 
-colnames(b) <-
+colnames(c) <-
   c(
     "Tuoteryhmä",
     "Satonnia_viljav",
@@ -193,8 +190,48 @@ colnames(b) <-
 library(openxlsx)
 taulukointi<-createWorkbook()
 addWorksheet(taulukointi, "viljav_tuotekerrointaulukko")
-writeData(taulukointi,"viljav_tuotekerrointaulukko",a )
-saveWorkbook(taulukointi, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/Viljav_tuotekerrointaulu.xlsx"), overwrite = T)
+writeData(taulukointi,"viljav_tuotekerrointaulukko",c )
+
+
+
+#Euroille viljavuuskerroin
+
+
+d<-Tuotekertoimet_viljav %>% group_by(Tuoteryhmä) %>% summarise(Tuhatta_euroa = sum(Tuhatta_euroa), 
+                                                             CO2eq_t_yht = sum(CO2_tonnia),
+                                                             Tuotteita_ryhmassa = sum(Laskuri))
+
+
+d<-d %>% mutate(Paastokerroin_t_CO2eq_keur = CO2eq_t_yht/Tuhatta_euroa)
+
+#Hajonnan liittäminen
+
+d<-d %>% inner_join(Hajonta_viljav, by="Tuoteryhmä") 
+d<-d %>% select(-6)
+
+colnames(d)<-  c(
+  "Tuoteryhmä",
+  "tuhatta_euroa",
+  "CO2eq_t_yht_viljav",
+  "Tuotteita_ryhmassa",
+  "Paastokerroin_t_CO2eq_keur_viljav",
+  "Hajonta_eurokerroin_viljav"
+  
+)
+
+d<-d %>% select(1:3,5:6,4)
+
+addWorksheet(taulukointi, "viljav_tuotekerrointaulu_eur")
+writeData(taulukointi,"viljav_tuotekerrointaulu_eur",d )
+
+saveWorkbook(taulukointi, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/viljav_tuotekerroint.xlsx"), overwrite = T)
+
+
+
+
+
+
+
 
 
 
