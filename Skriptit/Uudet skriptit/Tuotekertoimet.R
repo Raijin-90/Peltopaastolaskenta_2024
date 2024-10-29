@@ -232,7 +232,7 @@ saveWorkbook(taulukointi, file=here("Output/Yksinkertaistettu_intensiteettilaske
 
 
 
-
+#RInnastuskuva
 
 
 
@@ -240,7 +240,7 @@ saveWorkbook(taulukointi, file=here("Output/Yksinkertaistettu_intensiteettilaske
 #Rinnastetaan satomäärään suhteutettu kerroin           
 
 gtk_vert<-a %>% select(1,4,5,6)               
-viljav_vert<-b %>% select(1,4,5)               
+viljav_vert<-c %>% select(1,4,5)               
                
 Vertailu<-inner_join(gtk_vert, viljav_vert, by="Tuoteryhmä")
 Vertailu<-Vertailu %>% select(1:3,5:6,4)
