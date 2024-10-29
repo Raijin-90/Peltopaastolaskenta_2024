@@ -257,7 +257,7 @@ Vertailu<-Vertailu %>% mutate(Tuoteryhmä = case_when(Tuoteryhmä == "Hedelmät 
   
   
 
-write.xlsx(Vertailu, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/Kerroinvertailu_tuotteille_1306.xlsx"))
+write.xlsx(Vertailu, file=here("Output/Yksinkertaistettu_intensiteettilaskenta/Kerroinvertailu_tuotteille_2910.xlsx"))
 
 
 
