@@ -153,8 +153,7 @@ summary_rows(groups = matches("Animal farms"), columns =c(4,7) , fns = list(
 
 
 
-
-
+  
 
 
 sum(Jakaumataulu$CO2eq_tn_gtk)

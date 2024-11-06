@@ -303,11 +303,11 @@ Kuva %>% ggplot(mapping = aes(x = RAC, y = Coefficient, fill = Dataset)) +
     width = .2,
     position = position_dodge(.9)
   ) +
-  ylab(expression("tn" ~ "CO"["2"] ~ "-eq." ~ "tn" ^ -1)) +  
+  ylab(expression("t" ~ "CO"["2"] ~ "t" ^ -1)) +  
   xlab("Crop")+
   scale_x_discrete(labels = label_wrap(10))+
   theme_classic() 
- ggsave(filename="Kerroinvertailu_bw.tiff", dpi = 1200, path = here("Output/Grafiikka"))
+ ggsave(filename="Kerroinvertailu_bw_eqpois.tiff", dpi = 1200, path = here("Output/Grafiikka"))
   
 #Potut ja sugarbeet pelkkään taulukkoon? Nyt niiden välistä eroa ei näe
 
