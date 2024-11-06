@@ -79,10 +79,10 @@ Graph1<-Satopohjaiset %>%
   scale_fill_grey()+
   facet_wrap(~Crop, nrow=1)+
   xlab(NULL)+
-  ylab(expression("tn"~"CO"[2]~"eq"~"tn"^"-1"))+
+  ylab(expression("t"~"CO"[2]~"t"^"-1"))+
   theme(axis.text.x = element_text(angle = 50, hjust=1))+
   theme(legend.position = "none") 
-ggsave(filename="Herkkyystarkastelu_gtk_bw.svg", path = here("Output/Grafiikka"))
+ggsave(filename="Herkkyystarkastelu_gtk_bw.tiff",dpi=1200, path = here("Output/Grafiikka"))
   
 
 #Europohjaiset kertoimet
