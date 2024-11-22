@@ -327,7 +327,10 @@ addWorksheet(GTK_alat,"Mineraaliala")
 writeData(GTK_alat,"Mineraaliala", GTK_aggregointi_mineral)
 addWorksheet(GTK_alat, "Eloperäinen ala")
 writeData(GTK_alat,"Eloperäinen ala", GTK_aggregointi_elop)
+
 addWorksheet(GTK_alat,"Kaikki ala",GTK_aggregointi_kaikki_maa)
+
+
 saveWorkbook(GTK_alat, file=here("Output/AreaAggregates/Tasokorjaamaton_kokonaisala_gtk.xlsx"), overwrite = T)
 
 
