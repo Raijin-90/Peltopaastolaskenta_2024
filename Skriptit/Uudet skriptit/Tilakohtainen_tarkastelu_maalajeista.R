@@ -86,6 +86,17 @@ Tiladata<-inner_join(Tiladata, Kasvikategoriat_avain, by="Kasvikoodi")
 
 #Aggregoidaan tuotantosuunta- ja tuoteryhmätasolla, maalajit huomioiden
 
+Tilojen_viljelyala<- Tiladata %>% group_by(MAATILA_TUNNUS) %>% summarise(
+  Eloperaista = sum(Eloperaista),
+  Mineraalia = sum(Mineraalia),
+  Yhteensa = Eloperaista+Mineraalia )
+
+library(openxlsx);library(here)
+write.xlsx(Tilojen_viljelyala, file = here("Output/AreaAggregates/Tilojen_viljelyala.xlsx"))
+
+
+
+
 
 
 Tiladata<-Tiladata %>% group_by(MAATILA_TUNNUS, Tuotantosuuntaryhmä) %>% summarise(
