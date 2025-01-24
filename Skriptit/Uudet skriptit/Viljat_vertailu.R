@@ -58,11 +58,12 @@ Tuotantosuuntaryhmat <-
     here("Data","Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx"),
     sheet = "Tuotantosuunnat ryhmittäin",
     col_types = c("text",
+                  "text",
                   "text"
     )
   )
 colnames(Tuotantosuuntaryhmat) <-
-  c("Tuotantosuunta", "Tuotantosuuntaryhmä")
+  c("Tuotantosuunta", "Tuotantosuuntaryhmä","ETOL")
 
 
 Alat_vilja<-merge(Alat_vilja, Tuotantosuuntaryhmat, by="Tuotantosuunta")
@@ -190,6 +191,10 @@ gtsave(a, filename=here("Output/Grafiikka/Viljavertailu_26.8.2024.docx"), overwr
   
 
 Viljojen_keskimaar_kertoimet<-Viljapäästöt %>% group_by(Kasvikoodi,Kasvinimi) %>% summarise(Keskimaarainen_kerroin=mean(Kerroin))
+Viljojen_mediaanit <-Viljapäästöt %>% group_by(Kasvikoodi,Kasvinimi) %>% summarise(Mediaani_kerroin=median(Kerroin)) 
+
 write.xlsx(Viljojen_keskimaar_kertoimet,here("Output/Grafiikka/Viljavertailu_keskiarvot_26.8.2024.xlsx"))
+
+write.xlsx(Viljojen_mediaanit,here("Output/Grafiikka/Viljavertailu_mediaanit.xlsx"))
 
 

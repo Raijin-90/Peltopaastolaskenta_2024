@@ -44,7 +44,7 @@ Satopohjaiset<-c
 Satopohjaiset<-Satopohjaiset %>% mutate(Crop = case_when(Crop == "Kaura" ~ "Oat",
                                                          Crop == "Kevätrypsi" ~ "Spring rape",
                                                          Crop == "Porkkana" ~ "Carrot", 
-                                                         Crop == "Syysrypsi" ~ "Fall rape" ,
+                                                         Crop == "Syysrypsi" ~ "Winter rape" ,
                                                          Crop == "Tarhaherne" ~ "Garden pea",
 ))
 
@@ -83,7 +83,7 @@ Graph1<-Satopohjaiset %>%
   theme(axis.text.x = element_text(angle = 50, hjust=1))+
   theme(legend.position = "none") 
 ggsave(filename="Herkkyystarkastelu_gtk_bw.tiff",dpi=1200, path = here("Output/Grafiikka"))
-  
+   
 
 #Europohjaiset kertoimet
 
@@ -106,7 +106,7 @@ Europohjaiset<-c
 Europohjaiset<-Europohjaiset %>% mutate(Crop = case_when(Crop == "Kaura" ~ "Oat",
                                           Crop == "Kevätrypsi" ~ "Spring rape",
                                           Crop == "Porkkana" ~ "Carrot", 
-                                          Crop == "Syysrypsi" ~ "Fall rape" ,
+                                          Crop == "Syysrypsi" ~ "Winter rape" ,
                                           Crop == "Tarhaherne" ~ "Garden pea",
                                           ))
 

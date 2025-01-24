@@ -15,6 +15,11 @@ library(tidyr)
 
 source(here("Skriptit/Uudet skriptit","GTK_datan_aggregointi.R"))
 
+#Tilatarkkuuden laskenta:
+#source(here("Skriptit/Uudet skriptit","Tilatason_emissiot.R"))
+
+
+
 #Kasvitietojen täydennys kategoriatiedoilla ####
 #Aggregointiskriptin lopputotteisiin liitetään luokkatiedot eri kasveista
 GTK_aggregointi_mineral <-

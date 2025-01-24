@@ -139,7 +139,8 @@ Eläintilat<-c("Sikatilat",
               "Siipikarjatilat",
               "Muut nautakarjatilat",      
               "Hevostilat",
-              "Munatilat")
+              "Munatilat",
+              "Turkistilat")
 
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
                                            GTKdata$KASVIKOODI == 1400] <- 1400

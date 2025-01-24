@@ -287,6 +287,8 @@ Viljavuus_raivatut_aggregointi_multavuus$Elop_Mineral[Viljavuus_raivatut_aggrego
 Viljavuus_raivatut_aggregointi_multavuus$Elop_Mineral[Viljavuus_raivatut_aggregointi_multavuus$Multavuusluokka == "eloperäiset maat"] <-
   "Eloperäinen"
 
+
+
 #aggregointi ####
 #Aggregointi uudelleen muodostetun elop_mineral muuttujan mukaisesti
 #Näissä mukana AINOASTAAN RAIVAAMATTOMAT PELLOT
