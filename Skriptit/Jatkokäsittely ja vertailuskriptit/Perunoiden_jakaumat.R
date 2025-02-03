@@ -8,6 +8,14 @@ Viljavuus_Kaikki <-
     sheet = "KaikkiPellot"
   ) #LAdataan esikäsittelyskriptissä luotu aggregaatti sisään
 
+
+library(readxl)
+Tasokorjaamaton_kokonaisala_gtk <- read_excel("Output/AreaAggregates/Tasokorjaamaton_kokonaisala_gtk.xlsx")
+
+
+
+
+
 library(readxl)
 library(readxl)
 #Ota kategorioihin mukaan vain kasvikoodi, älä nimeä. Numerosarja riittää yhdistämisiin.

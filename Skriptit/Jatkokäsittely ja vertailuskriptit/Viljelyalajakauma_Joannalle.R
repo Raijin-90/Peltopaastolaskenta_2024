@@ -43,17 +43,33 @@ Aineisto$Kasvinimi.y<-NULL
 colnames(Aineisto)[colnames(Aineisto)=="Kasvinimi.x"]<-"Kasvinimi"
 sum(Aineisto$Peltoala_ha)
 
+Aineisto_tarkka<-Aineisto
 #Aggregointi
 
-rm.all.but("Aineisto")
+rm.all.but(c("Aineisto", "Aineisto_tarkka"))
 
 Aineisto<-Aineisto %>% group_by(ETTL,ETTL_nimike,ETOL_koodi,ETOL) %>% summarise(Peltoala_hehtaaria = sum(Peltoala_ha))
+
+Aineisto_tarkka<-Aineisto_tarkka %>% group_by(Kasvikoodi,Kasvinimi,ETOL_koodi,ETOL) %>% summarise(Peltoala_hehtaaria = sum(Peltoala_ha))
+
 x<-Aineisto #backup
+y<-Aineisto_tarkka
 #Jakauma: tavoitteena laskea, miten tuotteen viljelyala (maalajia erittelemättä) jakautuu etol-toimialojen kesken.
 
 Aineisto<-Aineisto %>% group_by(ETTL, ETTL_nimike) %>% mutate(Prosenttia = Peltoala_hehtaaria/sum(Peltoala_hehtaaria))
 
+Aineisto_tarkka<-Aineisto_tarkka %>% group_by(Kasvikoodi, Kasvinimi) %>% mutate(Prosenttia = Peltoala_hehtaaria/sum(Peltoala_hehtaaria))
+
+
+
+u<-Aineisto_tarkka %>% filter(Kasvinimi == "Syysvehnä")
+sum(u$Prosenttia)
 t<-Aineisto %>% filter(ETTL_nimike == "Vehnä")
 sum(t$Prosenttia)
 
 write.xlsx(Aineisto, here("Output/AreaAggregates/Viljelyalajakauma_gtk_peltodata.xlsx"))
+
+write.xlsx(Aineisto_tarkka,here("Output/AreaAggregates/Viljelyalajakauma_gtk_peltodata_tarkat_kasvit.xlsx") )
+
+
+
