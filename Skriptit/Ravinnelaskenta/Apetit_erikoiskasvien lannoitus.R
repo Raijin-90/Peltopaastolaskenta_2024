@@ -73,7 +73,7 @@ luomu<-filter(Data_pitoisuudet, (str_detect(Data_pitoisuudet$Lajike, "luomu")))
 
 Data_pitoisuudet<-Data_pitoisuudet %>% filter(!Lannoitusotsikkonumero %in% luomu$Lannoitusotsikkonumero) 
 
-Samoin poistetaan luomupakasteherneet
+#Samoin poistetaan luomupakasteherneet
 
 Data_pitoisuudet<-Data_pitoisuudet %>% filter(!str_detect(Sopimuskasvi_nimi ,"LUOMU|luomu"))
 

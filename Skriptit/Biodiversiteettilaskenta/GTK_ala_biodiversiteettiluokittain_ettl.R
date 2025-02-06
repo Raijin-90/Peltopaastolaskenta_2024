@@ -5,11 +5,9 @@ library(varhandle);library(tidyverse);library(openxlsx)
 #Pinta-ala-aggregaatti gtk-aineistosta, tarkkuustasona ETTL, ETOL, biodiversiteettiluokka. 
 
 #Ajetaan pinta-aladata  ETTL ja ETOL tasolle. 
-source_lines <- function(file, lines){
-  source(textConnection(readLines(file)[lines]))
-}
 
-source_lines(here("Skriptit/Uudet skriptit/GTK_alojen_muunto_envimat_koodeille.R"),1:134)
+
+source(here("Skriptit/Uudet skriptit/GTK_alojen_muunto_envimat_koodeille.R"))
 
 #Viljelyalan tarkistus
 sum(GTK_aggregointi_elop$EloperäistäMaata)+sum(GTK_aggregointi_elop_raiviot$EloperäistäMaata)+sum(GTK_aggregointi_mineral$Mineraalimaata)+sum(GTK_aggregointi_mineral_raiviot$Mineraalimaata)

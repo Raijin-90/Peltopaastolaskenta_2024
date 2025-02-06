@@ -418,3 +418,5 @@ colnames(GTK_aggregointi_elop_raiviot) <-
 print("GTK-datan aggregointi suoritettu.")
 
 gc()
+
+
