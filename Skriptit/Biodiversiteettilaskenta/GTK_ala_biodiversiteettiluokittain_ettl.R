@@ -2,20 +2,39 @@
 
 library(varhandle);library(tidyverse);library(openxlsx)
 
+
 #Pinta-ala-aggregaatti gtk-aineistosta, tarkkuustasona ETTL, ETOL, biodiversiteettiluokka. 
 
-#Ajetaan pinta-aladata  ETTL ja ETOL tasolle. 
 
+source(here("Skriptit/Uudet skriptit/GTK_datan_tasokorjaus_ohitus.R"))
 
-source(here("Skriptit/Uudet skriptit/GTK_alojen_muunto_envimat_koodeille.R"))
 
 #Viljelyalan tarkistus
-sum(GTK_aggregointi_elop$EloperäistäMaata)+sum(GTK_aggregointi_elop_raiviot$EloperäistäMaata)+sum(GTK_aggregointi_mineral$Mineraalimaata)+sum(GTK_aggregointi_mineral_raiviot$Mineraalimaata)
 
-rm.all.but(c("GTK_aggregointi_elop",
-             "GTK_aggregointi_elop_raiviot",
-             "GTK_aggregointi_mineral",
-             "GTK_aggregointi_mineral_raiviot"))
+rm.all.but(c("Cropland_korotettu_elop",
+             "Cropland_korotettu_elop_raivio",
+             "Cropland_korotettu_mineraalimaa",
+             "Cropland_korotettu_mineraalimaa_raivio",
+             "Grassland_korotettu_elop",
+             "Grassland_korotettu_elop_raivio",
+             "Grassland_korotettu_mineraalimaa",
+             "Grassland_korotettu_mineraalimaa_raivio"))
+             
+a<-sum(sum(colSums(Cropland_korotettu_elop[6:length(Cropland_korotettu_elop)])),
+sum(colSums(Cropland_korotettu_elop_raivio[6:length(Cropland_korotettu_elop_raivio)])),
+sum(colSums(Grassland_korotettu_elop[6:length(Grassland_korotettu_elop)])),
+sum(colSums(Grassland_korotettu_elop_raivio[6:length(Grassland_korotettu_elop_raivio)])))
+
+
+b<-sum(sum(colSums(Cropland_korotettu_mineraalimaa[6:length(Cropland_korotettu_mineraalimaa)])),
+sum(colSums(Cropland_korotettu_mineraalimaa_raivio[6:length(Cropland_korotettu_mineraalimaa_raivio)])),
+sum(colSums(Grassland_korotettu_mineraalimaa[6:length(Grassland_korotettu_mineraalimaa)])),
+sum(colSums(Grassland_korotettu_mineraalimaa_raivio[6:length(Grassland_korotettu_mineraalimaa_raivio)])))
+
+#Pinta-alatarkistus kun tiedät, mikä sen pitää olla. Jos ei ole, niin jossain vaiheessa dataa putoaa (epätarkka joini) 
+if(round(sum(a,b),0) != 2329482) {
+ stop("VÄÄRÄ PINTA-ALA, TARKISTA AGGREGOINTI")}
+
 
 #Liitetään biodiversiteetin kerroin
 
@@ -26,240 +45,306 @@ Biodiversiteettiluokat_kasveille <- read_excel("Data/Biodiversiteettiluokat_kasv
 Biodiversiteettiluokat_kasveille$Kasvi<-NULL
 
 
-nrow(inner_join(GTK_aggregointi_elop, Biodiversiteettiluokat_kasveille, by="Kasvikoodi"))
-GTK_aggregointi_elop<-inner_join(GTK_aggregointi_elop, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
+Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
+Cropland_korotettu_elop_raivio<-inner_join(Cropland_korotettu_elop_raivio, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
 
-nrow(inner_join(GTK_aggregointi_elop_raiviot, Biodiversiteettiluokat_kasveille, by="Kasvikoodi"))
-GTK_aggregointi_elop_raiviot<-inner_join(GTK_aggregointi_elop_raiviot, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
+Cropland_korotettu_mineraalimaa<-inner_join(Cropland_korotettu_mineraalimaa, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
+Cropland_korotettu_mineraalimaa_raivio<-inner_join(Cropland_korotettu_mineraalimaa_raivio, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
 
+Grassland_korotettu_mineraalimaa<-inner_join(Grassland_korotettu_mineraalimaa, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
+Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraalimaa_raivio, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
 
-nrow(inner_join(GTK_aggregointi_mineral, Biodiversiteettiluokat_kasveille, by="Kasvikoodi"))
-GTK_aggregointi_mineral<-inner_join(GTK_aggregointi_mineral, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
-
-nrow(inner_join(GTK_aggregointi_mineral_raiviot, Biodiversiteettiluokat_kasveille, by="Kasvikoodi"))
-GTK_aggregointi_mineral_raiviot<-inner_join(GTK_aggregointi_mineral_raiviot, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
-
-sum(GTK_aggregointi_elop$EloperäistäMaata)+sum(GTK_aggregointi_elop_raiviot$EloperäistäMaata)+sum(GTK_aggregointi_mineral$Mineraalimaata)+sum(GTK_aggregointi_mineral_raiviot$Mineraalimaata)
+Grassland_korotettu_elop<-inner_join(Grassland_korotettu_elop, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
+Grassland_korotettu_elop_raivio<-inner_join(Grassland_korotettu_elop_raivio, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
 
 
-#Aggregoidaan ettl ja etol luokkien mukaisesti
+Cropland_korotettu_elop<-pivot_longer(Cropland_korotettu_elop, cols = 6:31, names_to = "Tuotantosuunta", values_to = "Eloperaista")
+Cropland_korotettu_elop_raivio<-pivot_longer(Cropland_korotettu_elop_raivio, cols = 6:31, names_to = "Tuotantosuunta", values_to = "Eloperaista")
+Cropland_korotettu_mineraalimaa<-pivot_longer(Cropland_korotettu_mineraalimaa, cols = 6:31, names_to = "Tuotantosuunta", values_to = "Mineraalia")
+Cropland_korotettu_mineraalimaa_raivio<-pivot_longer(Cropland_korotettu_mineraalimaa_raivio, cols = 6:31, names_to = "Tuotantosuunta", values_to = "Mineraalia")
 
-GTK_aggregointi_elop <-
-  GTK_aggregointi_elop %>% group_by(
-    ETOL,
-    Tuotantosuuntaryhmä,
-    ETTL,
-    `ETTL Nimike`,
-    `Yksi/monivuotinen`,
-    `Cropland/grassland`,
-    Soveltuva_biodiv_kerroin
-  ) %>% summarise(Eloperaista_maata = sum(EloperäistäMaata))
-sum(GTK_aggregointi_elop$Eloperaista_maata)
+Grassland_korotettu_elop<-pivot_longer(Grassland_korotettu_elop, cols = 6:31, names_to = "Tuotantosuunta", values_to = "Eloperaista" )
+Grassland_korotettu_elop_raivio<-pivot_longer(Grassland_korotettu_elop_raivio, cols = 6:31, names_to = "Tuotantosuunta",values_to = "Eloperaista")
+Grassland_korotettu_mineraalimaa<-pivot_longer(Grassland_korotettu_mineraalimaa, cols = 6:31, names_to = "Tuotantosuunta",values_to = "Mineraalia")
+Grassland_korotettu_mineraalimaa_raivio<-pivot_longer(Grassland_korotettu_mineraalimaa_raivio, cols = 6:31, names_to = "Tuotantosuunta",values_to = "Mineraalia")
 
 
-GTK_aggregointi_elop_raiviot<-GTK_aggregointi_elop_raiviot %>% group_by(ETOL,Tuotantosuuntaryhmä,ETTL,`ETTL Nimike`,`Yksi/monivuotinen`,`Cropland/grassland`,Soveltuva_biodiv_kerroin) %>% summarise(Eloperaista_maata=sum(EloperäistäMaata))
-sum(GTK_aggregointi_elop_raiviot$Eloperaista_maata)
+a<-sum(Cropland_korotettu_elop$Eloperaista)+sum(Cropland_korotettu_elop_raivio$Eloperaista)+sum(Cropland_korotettu_mineraalimaa$Mineraalia)+sum(Cropland_korotettu_mineraalimaa_raivio$Mineraalia)
+b<-sum(Grassland_korotettu_elop$Eloperaista)+sum(Grassland_korotettu_elop_raivio$Eloperaista)+sum(Grassland_korotettu_mineraalimaa$Mineraalia)+sum(Grassland_korotettu_mineraalimaa_raivio$Mineraalia)
 
-GTK_aggregointi_mineral<-GTK_aggregointi_mineral %>% group_by(ETOL,Tuotantosuuntaryhmä,ETTL,`ETTL Nimike`,`Yksi/monivuotinen`,`Cropland/grassland`,Soveltuva_biodiv_kerroin) %>% summarise(Mineraalimaata=sum(Mineraalimaata))
-sum(GTK_aggregointi_mineral$Mineraalimaata)
+#Pinta-alatarkistus kun tiedät, mikä sen pitää olla. Jos ei ole, niin jossain vaiheessa dataa putoaa (epätarkka joini) 
+if(round(sum(a,b),0) != 2329482) {
+  stop("VÄÄRÄ PINTA-ALA, TARKISTA AGGREGOINTI")}
 
-GTK_aggregointi_mineral_raiviot<-GTK_aggregointi_mineral_raiviot %>% group_by(ETOL,Tuotantosuuntaryhmä,ETTL,`ETTL Nimike`,`Yksi/monivuotinen`,`Cropland/grassland`,Soveltuva_biodiv_kerroin) %>% summarise(Mineraalimaata=sum(Mineraalimaata))
-sum(GTK_aggregointi_mineral_raiviot$Mineraalimaata)
+#Tuotantosuuntanimien oikomiset ####
+Cropland_korotettu_elop<- Cropland_korotettu_elop %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                        Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                        Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                        Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                        Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                        Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                        Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                        Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                        .default = Tuotantosuunta))
+
+  Cropland_korotettu_elop_raivio<-Cropland_korotettu_elop_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                     Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                     Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                     Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                     Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                     Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                     Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                     Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                     .default = Tuotantosuunta))
+
+  Cropland_korotettu_mineraalimaa<-Cropland_korotettu_mineraalimaa %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                       Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                       Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                       Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                       Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                       Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                       Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                       Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                       .default = Tuotantosuunta))
+
+Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                                     Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                                     Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                                     Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                                     Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                                     Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                                     Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                                     Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                                     .default = Tuotantosuunta))
+
+Grassland_korotettu_elop<-Grassland_korotettu_elop %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                         .default = Tuotantosuunta))
+
+Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                       Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                       Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                       Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                       Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                       Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                       Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                       Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                       .default = Tuotantosuunta))
+Grassland_korotettu_mineraalimaa<- Grassland_korotettu_mineraalimaa %>%  mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                           Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                           Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                           Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                           Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                           Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                           Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                           Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                           .default = Tuotantosuunta))
+
+Grassland_korotettu_mineraalimaa_raivio <- Grassland_korotettu_mineraalimaa_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                                         .default = Tuotantosuunta))
+
+
+
+#ETOL ja ETTL-koodit kiinni ####
+
+ETOL<-read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                 sheet = "Tuotantosuunnat ryhmittäin")
+colnames(ETOL)[1]<-"Tuotantosuunta"
+
+ETTL<-read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                 sheet = "Kasvit_ETTL_koodeittain")  
+colnames(ETTL)[3]<-"Kasvikoodi"
+#ETOL
+Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, ETOL, by = "Tuotantosuunta") 
+Cropland_korotettu_elop_raivio<-inner_join(Cropland_korotettu_elop_raivio, ETOL, by = "Tuotantosuunta")
+Cropland_korotettu_mineraalimaa<-inner_join(Cropland_korotettu_mineraalimaa, ETOL, by = "Tuotantosuunta")
+Cropland_korotettu_mineraalimaa_raivio<-inner_join(Cropland_korotettu_mineraalimaa_raivio, ETOL, by = "Tuotantosuunta")
+
+Grassland_korotettu_elop<-inner_join(Grassland_korotettu_elop, ETOL, by = "Tuotantosuunta") 
+Grassland_korotettu_elop_raivio<-inner_join(Grassland_korotettu_elop_raivio, ETOL, by = "Tuotantosuunta")
+Grassland_korotettu_mineraalimaa<-inner_join(Grassland_korotettu_mineraalimaa, ETOL, by = "Tuotantosuunta")
+Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraalimaa_raivio, ETOL, by = "Tuotantosuunta")
+
+#ETTL
+Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, ETTL, by = "Kasvikoodi") 
+Cropland_korotettu_elop_raivio<-inner_join(Cropland_korotettu_elop_raivio, ETTL, by = "Kasvikoodi")
+Cropland_korotettu_mineraalimaa<-inner_join(Cropland_korotettu_mineraalimaa, ETTL, by = "Kasvikoodi")
+Cropland_korotettu_mineraalimaa_raivio<-inner_join(Cropland_korotettu_mineraalimaa_raivio, ETTL, by = "Kasvikoodi")
+
+Grassland_korotettu_elop<-inner_join(Grassland_korotettu_elop, ETTL, by = "Kasvikoodi") 
+Grassland_korotettu_elop_raivio<-inner_join(Grassland_korotettu_elop_raivio, ETTL, by = "Kasvikoodi")
+Grassland_korotettu_mineraalimaa<-inner_join(Grassland_korotettu_mineraalimaa, ETTL, by = "Kasvikoodi")
+Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraalimaa_raivio, ETTL, by = "Kasvikoodi")
+
+#Aggregoidaan ettl ja etol luokkien ja biodiv. kertoimen mukaisesti 
+
+Cropland_korotettu_elop<- Cropland_korotettu_elop %>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Eloperaista", sum)
+
+  Cropland_korotettu_elop_raivio<-Cropland_korotettu_elop_raivio %>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Eloperaista", sum)
+
+Cropland_korotettu_mineraalimaa<-Cropland_korotettu_mineraalimaa %>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Mineraalia", sum)
+
+Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Mineraalia", sum)
+
+Grassland_korotettu_elop<-Grassland_korotettu_elop%>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Eloperaista", sum)
+
+Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio%>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Eloperaista", sum)
+
+Grassland_korotettu_mineraalimaa<-Grassland_korotettu_mineraalimaa %>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Mineraalia", sum)
+
+Grassland_korotettu_mineraalimaa_raivio<-Grassland_korotettu_mineraalimaa_raivio %>% group_by(
+  ETOL,
+  ETTL,
+  `ETTL Nimike`,
+  `Yksi/monivuotinen`,
+  `Cropland/grassland`,
+  Soveltuva_biodiv_kerroin
+) %>% summarise_at("Mineraalia", sum)
+
 
 #Tarkista, että ala stemmaa. 
-sum(GTK_aggregointi_elop$Eloperaista_maata)+sum(GTK_aggregointi_elop_raiviot$Eloperaista_maata)+sum(GTK_aggregointi_mineral$Mineraalimaata)+sum(GTK_aggregointi_mineral_raiviot$Mineraalimaata)
 
-#Data matriisimaisen muotoiseksi, NA:n muutos nolliksi
-#Tämä edellyttää koodien poistoa, jotta leveä muoto kääntyy oikein 
-GTK_aggregointi_elop <- ungroup(GTK_aggregointi_elop)
-GTK_aggregointi_elop <-
-  GTK_aggregointi_elop %>% select(
-    Tuotantosuuntaryhmä,
-    `ETTL Nimike`,
-    `Yksi/monivuotinen`,
-    Soveltuva_biodiv_kerroin,
-    `Cropland/grassland`,
-    Eloperaista_maata
-  )
+a<-sum(Cropland_korotettu_elop$Eloperaista,
+Cropland_korotettu_elop_raivio$Eloperaista,
+Cropland_korotettu_mineraalimaa$Mineraalia,
+Cropland_korotettu_mineraalimaa_raivio$Mineraalia)
 
-GTK_aggregointi_elop_raiviot <- ungroup(GTK_aggregointi_elop_raiviot)
-GTK_aggregointi_elop_raiviot <-
-  GTK_aggregointi_elop_raiviot %>% select(
-    Tuotantosuuntaryhmä,
-    `ETTL Nimike`,
-    `Yksi/monivuotinen`,
-    Soveltuva_biodiv_kerroin,
-    `Cropland/grassland`,
-    Eloperaista_maata
-  )
+b<-sum(Grassland_korotettu_elop$Eloperaista,
+Grassland_korotettu_elop_raivio$Eloperaista,
+Grassland_korotettu_mineraalimaa$Mineraalia,
+Grassland_korotettu_mineraalimaa_raivio$Mineraalia)
 
-GTK_aggregointi_mineral <- ungroup(GTK_aggregointi_mineral)
-GTK_aggregointi_mineral <-
-  GTK_aggregointi_mineral %>% select(
-    Tuotantosuuntaryhmä,
-    `ETTL Nimike`,
-    `Yksi/monivuotinen`,
-    Soveltuva_biodiv_kerroin,
-    `Cropland/grassland`,
-    Mineraalimaata
-  )
-
-GTK_aggregointi_mineral_raiviot <-
-  ungroup(GTK_aggregointi_mineral_raiviot)
-GTK_aggregointi_mineral_raiviot <-
-  GTK_aggregointi_mineral_raiviot %>% select(
-    Tuotantosuuntaryhmä,
-    `ETTL Nimike`,
-    `Yksi/monivuotinen`,
-    Soveltuva_biodiv_kerroin,
-    `Cropland/grassland`,
-    Mineraalimaata
-  )
+#Pinta-alatarkistus kun tiedät, mikä sen pitää olla. Jos ei ole, niin jossain vaiheessa dataa putoaa (epätarkka joini) 
+if(round(sum(a,b),0) != 2329482) {
+  stop("VÄÄRÄ PINTA-ALA, TARKISTA AGGREGOINTI")}
 
 
-sum(GTK_aggregointi_elop$Eloperaista_maata)+sum(GTK_aggregointi_elop_raiviot$Eloperaista_maata)+sum(GTK_aggregointi_mineral$Mineraalimaata)+sum(GTK_aggregointi_mineral_raiviot$Mineraalimaata)
+#Kiinnitetään BD-kerroin
+
+library(readxl)
+BD_kertoimet <- read_excel(here("Data/Biodiversiteettikertoimet.xlsx"))
+
+rm.all.but(c("Cropland_korotettu_elop",
+             "Cropland_korotettu_elop_raivio",
+             "Cropland_korotettu_mineraalimaa",
+             "Cropland_korotettu_mineraalimaa_raivio",
+             "Grassland_korotettu_elop",
+             "Grassland_korotettu_elop_raivio",
+             "Grassland_korotettu_mineraalimaa",
+             "Grassland_korotettu_mineraalimaa_raivio",
+             "BD_kertoimet"))
+
+Cropland_korotettu_elop<-Cropland_korotettu_elop %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+Cropland_korotettu_elop_raivio<-Cropland_korotettu_elop_raivio %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+Cropland_korotettu_mineraalimaa<-Cropland_korotettu_mineraalimaa %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+
+Grassland_korotettu_elop<-Grassland_korotettu_elop %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+Grassland_korotettu_mineraalimaa<-Grassland_korotettu_mineraalimaa%>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
+Grassland_korotettu_mineraalimaa_raivio<-Grassland_korotettu_mineraalimaa_raivio %>% inner_join(BD_kertoimet, by="Soveltuva_biodiv_kerroin")
 
 
-#Leveään muotoon
+#Tarkista, että ala stemmaa. 
 
-GTK_aggregointi_elop <-
-  GTK_aggregointi_elop %>% pivot_wider(names_from = `ETTL Nimike`,
-                                       values_from = Eloperaista_maata,
-                                       values_fill = 0)
-GTK_aggregointi_elop_raiviot<-
-  GTK_aggregointi_elop_raiviot %>% pivot_wider(names_from = `ETTL Nimike`,
-                                               values_from = Eloperaista_maata,
-                                               values_fill = 0)
-GTK_aggregointi_mineral<-
-  GTK_aggregointi_mineral %>% pivot_wider(names_from = `ETTL Nimike`,
-                                          values_from = Mineraalimaata,
-                                          values_fill = 0)
-GTK_aggregointi_mineral_raiviot<-
-  GTK_aggregointi_mineral_raiviot %>% pivot_wider(names_from = `ETTL Nimike`,
-                                                  values_from = Mineraalimaata,
-                                                  values_fill = 0)
+a<-sum(Cropland_korotettu_elop$Eloperaista,
+       Cropland_korotettu_elop_raivio$Eloperaista,
+       Cropland_korotettu_mineraalimaa$Mineraalia,
+       Cropland_korotettu_mineraalimaa_raivio$Mineraalia)
 
-#Viljelyalan tarkistud
-sum(colSums(GTK_aggregointi_elop[5:length(GTK_aggregointi_elop)]))+
-  sum(colSums(GTK_aggregointi_elop_raiviot[5:length(GTK_aggregointi_elop_raiviot)]))+
-  sum(colSums(GTK_aggregointi_mineral[5:length(GTK_aggregointi_mineral)]))+
-  sum(colSums(GTK_aggregointi_mineral_raiviot[5:length(GTK_aggregointi_mineral_raiviot)]))
+b<-sum(Grassland_korotettu_elop$Eloperaista,
+       Grassland_korotettu_elop_raivio$Eloperaista,
+       Grassland_korotettu_mineraalimaa$Mineraalia,
+       Grassland_korotettu_mineraalimaa_raivio$Mineraalia)
 
+#Pinta-alatarkistus kun tiedät, mikä sen pitää olla. Jos ei ole, niin jossain vaiheessa dataa putoaa (epätarkka joini) 
+if(round(sum(a,b),0) != 2329482) {
+  stop("VÄÄRÄ PINTA-ALA, TARKISTA AGGREGOINTI")}
 
-
-Tuotevektori<-c(
-  "Vehnä",
-  "Maissi",
-  "Mallasohra",
-  "Rehuohra",
-  "Ruis",
-  "Kaura",
-  "Muut viljat",
-  "Rypsi ja rapsi",
-  "Seesaminsiemenet",
-  "Auringonkukansiemenet",
-  "Öljyhamppu",
-  "Öljypellava",
-  "Ruokaperuna",
-  "Varhaisperuna",
-  "Sokerijuurikas",
-  "Pensaspapu",
-  "Tarhaherne",
-  "Härkäpapu",
-  "Ruokaherne",
-  "Parsa",
-  "Valko-eli keräkaali ja punakaali",
-  "Kiinankaali",
-  "Savoijinkaali (kurttukaali)",
-  "Ruusukaali",
-  "Kyssäkaali",
-  "Kukkakaali",
-  "Parsakaali",
-  "Salaatti (Lactuca-suku)",
-  "Ruukkusalaatit",
-  "Sikurit ja endiivit",
-  "Pinaatti",
-  "Latva-artisokka",
-  "Ruukkuyrtit",
-  "Tilli (avomaa)",
-  "Persilja (avomaa)",
-  "Lehtiselleri",
-  "Raparperi",
-  "Sokerimaissi",
-  "Vesimelonit",
-  "Muut melonit",
-  "Paprika (kasvihuonetuotanto)",
-  "Kasvihuonekurkku",
-  "Avomaankurkku",
-  "Munakoisot",
-  "Tomaatti",
-  "Kurpitsa",
-  "Kesäkurpitsa",
-  "Porkkana",
-  "Nauris",
-  "Valkosipuli",
-  "Kepa-eli ruokasipuli, salotti-, puna- ja jättisipuli sekä istukassipulit",
-  "Purjo",
-  "Lanttu",
-  "Mukulaselleri",
-  "Palsternakka",
-  "Punajuurikas ja keltajuurikas",
-  "Piparjuuri",
-  "Juuripersilja",
-  "Bataatit",
-  "Kassava",
-  "Maa-artisokka",
-  "Kasvisten siemenet, ei kuitenkaan juurikkaansiemenet",
-  "Sokerijuurikkaan siemenet",
-  "Viljellyt sienet ja multasienet (tryffelit)",
-  "Kasvikset, tuoreet, muualle luokittelemattomat",
-  "Omenat",
-  "Päärynät",
-  "Kvittenit",
-  "Aprikoosit",
-  "Kirsikat",
-  "Persikat",
-  "Nektariinit",
-  "Luumut",
-  "Muut kota- ja kivihedelmät, muualle luokittelemattomat",
-  "Kiivit",
-  "Vadelmat",
-  "Mansikat",
-  "Mustaherukat",
-  "Punaherukat",
-  "Valkoherukat",
-  "Karviaiset",
-  "Pensasmustikat",
-  "Muut marjat",
-  "Muut maustekasvit, muut kuin jalostetut",
-  "Rehukasvit",
-  "Kaikki yhteensä"
-)
-
-
-for (name in Tuotevektori) {
-  ifelse(is.na(GTK_aggregointi_elop[[name]]), GTK_aggregointi_elop <- cbind(GTK_aggregointi_elop, name = ""), GTK_aggregointi_elop <- cbind(GTK_aggregointi_elop, name))
-}
-
-
-
-
-
-
-
-
-#Exportataan välitulokset
+#Exportataan 
 
 library(openxlsx)
 
 Alat<-createWorkbook()
-addWorksheet(Alat, "Eloperainen")
-writeData(Alat, "Eloperainen", GTK_aggregointi_elop)
-addWorksheet(Alat, "Mineraali")
-writeData(Alat, "Mineraali", GTK_aggregointi_mineral)
-addWorksheet(Alat, "Eloperainen_raivattu")
-writeData(Alat, "Eloperainen_raivattu", GTK_aggregointi_elop_raiviot)
-addWorksheet(Alat, "Mineraali_raivattu")
-writeData(Alat, "Mineraali_raivattu", GTK_aggregointi_mineral_raiviot)
+addWorksheet(Alat, "Cropland_mineraalimaa")
+addWorksheet(Alat, "Cropland_mineraalimaa_raivio")
+addWorksheet(Alat, "Cropland_elop_maa")
+addWorksheet(Alat, "Cropland_elop_maa_raivio")
+addWorksheet(Alat, "Grassland_mineraalimaa")
+addWorksheet(Alat, "Grassland_mineraalimaa_raivio")
+addWorksheet(Alat, "Grassland_elop_maa")
+addWorksheet(Alat, "Grassland_elop_maa_raivio")
 
-saveWorkbook(Alat, file=here("Output/AreaAggregates/Viljelyalat_gtk_BDLuokka_0924.xlsx"))
+writeData(Alat, "Cropland_mineraalimaa", Cropland_korotettu_mineraalimaa)
+writeData(Alat, "Cropland_mineraalimaa_raivio",Cropland_korotettu_mineraalimaa_raivio)
+writeData(Alat, "Cropland_elop_maa", Cropland_korotettu_elop)
+writeData(Alat, "Cropland_elop_maa_raivio",Cropland_korotettu_elop_raivio)
+
+writeData(Alat, "Grassland_mineraalimaa",Grassland_korotettu_mineraalimaa)
+writeData(Alat, "Grassland_mineraalimaa_raivio",Grassland_korotettu_mineraalimaa_raivio)
+writeData(Alat, "Grassland_elop_maa",Grassland_korotettu_elop )
+writeData(Alat, "Grassland_elop_maa_raivio", Grassland_korotettu_elop_raivio)
+
+saveWorkbook(Alat, file=here("Output/AreaAggregates/GTK_viljelyalat_BDLuokka_06022025.xlsx"))
