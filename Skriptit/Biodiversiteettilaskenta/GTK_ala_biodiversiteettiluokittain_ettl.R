@@ -192,6 +192,7 @@ Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraal
 #Aggregoidaan ettl ja etol luokkien ja biodiv. kertoimen mukaisesti 
 
 Cropland_korotettu_elop<- Cropland_korotettu_elop %>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -201,6 +202,7 @@ Cropland_korotettu_elop<- Cropland_korotettu_elop %>% group_by(
 ) %>% summarise_at("Eloperaista", sum)
 
   Cropland_korotettu_elop_raivio<-Cropland_korotettu_elop_raivio %>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -210,6 +212,7 @@ Cropland_korotettu_elop<- Cropland_korotettu_elop %>% group_by(
 ) %>% summarise_at("Eloperaista", sum)
 
 Cropland_korotettu_mineraalimaa<-Cropland_korotettu_mineraalimaa %>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -219,6 +222,7 @@ Cropland_korotettu_mineraalimaa<-Cropland_korotettu_mineraalimaa %>% group_by(
 ) %>% summarise_at("Mineraalia", sum)
 
 Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -228,6 +232,7 @@ Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %
 ) %>% summarise_at("Mineraalia", sum)
 
 Grassland_korotettu_elop<-Grassland_korotettu_elop%>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -237,6 +242,7 @@ Grassland_korotettu_elop<-Grassland_korotettu_elop%>% group_by(
 ) %>% summarise_at("Eloperaista", sum)
 
 Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio%>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -246,6 +252,7 @@ Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio%>% group_by(
 ) %>% summarise_at("Eloperaista", sum)
 
 Grassland_korotettu_mineraalimaa<-Grassland_korotettu_mineraalimaa %>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -255,6 +262,7 @@ Grassland_korotettu_mineraalimaa<-Grassland_korotettu_mineraalimaa %>% group_by(
 ) %>% summarise_at("Mineraalia", sum)
 
 Grassland_korotettu_mineraalimaa_raivio<-Grassland_korotettu_mineraalimaa_raivio %>% group_by(
+  ETOL_koodi,
   ETOL,
   ETTL,
   `ETTL Nimike`,
@@ -323,28 +331,101 @@ b<-sum(Grassland_korotettu_elop$Eloperaista,
 if(round(sum(a,b),0) != 2329482) {
   stop("VÄÄRÄ PINTA-ALA, TARKISTA AGGREGOINTI")}
 
-#Exportataan 
 
+
+
+#Ositetaan perennat ja yksivuotiset omiin..
+
+Cropland_korotettu_elop_yksiv<-Cropland_korotettu_elop %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Cropland_korotettu_elop_moniv<-Cropland_korotettu_elop %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Cropland_korotettu_elop_raivio_yksiv<-Cropland_korotettu_elop_raivio %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Cropland_korotettu_elop_raivio_moniv<-Cropland_korotettu_elop_raivio %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Cropland_korotettu_mineraalimaa_yksiv<-Cropland_korotettu_mineraalimaa %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Cropland_korotettu_mineraalimaa_moniv<-Cropland_korotettu_mineraalimaa %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Cropland_korotettu_mineraalimaa_raivio_yksiv<-Cropland_korotettu_mineraalimaa_raivio %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Cropland_korotettu_mineraalimaa_raivio_moniv<-Cropland_korotettu_mineraalimaa_raivio %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Grassland_korotettu_elop_yksiv<-Grassland_korotettu_elop %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Grassland_korotettu_elop_moniv<-Grassland_korotettu_elop %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Grassland_korotettu_elop_raivio_yksiv<-Grassland_korotettu_elop_raivio %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Grassland_korotettu_elop_raivio_moniv<-Grassland_korotettu_elop_raivio %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Grassland_korotettu_mineraalimaa_yksiv<-Grassland_korotettu_mineraalimaa %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Grassland_korotettu_mineraalimaa_moniv<-Grassland_korotettu_mineraalimaa %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+Grassland_korotettu_mineraalimaa_raivio_yksiv<-Grassland_korotettu_mineraalimaa_raivio %>% filter(`Yksi/monivuotinen` == "Yksivuotinen")
+Grassland_korotettu_mineraalimaa_raivio_moniv<-Grassland_korotettu_mineraalimaa_raivio %>% filter(`Yksi/monivuotinen` == "Monivuotinen")
+
+
+
+rm.all.but(c(
+  "Cropland_korotettu_elop_yksiv",
+  "Cropland_korotettu_elop_moniv",
+  "Cropland_korotettu_elop_raivio_yksiv",
+  "Cropland_korotettu_elop_raivio_moniv",
+  "Cropland_korotettu_mineraalimaa_yksiv",
+  "Cropland_korotettu_mineraalimaa_moniv",
+  "Cropland_korotettu_mineraalimaa_raivio_yksiv",
+  "Cropland_korotettu_mineraalimaa_raivio_moniv",
+  "Grassland_korotettu_elop_yksiv",
+  "Grassland_korotettu_elop_moniv",
+  "Grassland_korotettu_elop_raivio_yksiv",
+  "Grassland_korotettu_elop_raivio_moniv",
+  "Grassland_korotettu_mineraalimaa_yksiv",
+  "Grassland_korotettu_mineraalimaa_moniv",
+  "Grassland_korotettu_mineraalimaa_raivio_yksiv",
+  "Grassland_korotettu_mineraalimaa_raivio_moniv"))
+
+#Työkirja ja sheetit
 library(openxlsx)
 
 Alat<-createWorkbook()
-addWorksheet(Alat, "Cropland_mineraalimaa")
-addWorksheet(Alat, "Cropland_mineraalimaa_raivio")
-addWorksheet(Alat, "Cropland_elop_maa")
-addWorksheet(Alat, "Cropland_elop_maa_raivio")
-addWorksheet(Alat, "Grassland_mineraalimaa")
-addWorksheet(Alat, "Grassland_mineraalimaa_raivio")
-addWorksheet(Alat, "Grassland_elop_maa")
-addWorksheet(Alat, "Grassland_elop_maa_raivio")
+addWorksheet(Alat, "Cropland_min_yksiv")
+addWorksheet(Alat, "Cropland_min_moniv")
+addWorksheet(Alat, "Cropland_min_raivio_yksiv")
+addWorksheet(Alat, "Cropland_min_raivio_moniv")
 
-writeData(Alat, "Cropland_mineraalimaa", Cropland_korotettu_mineraalimaa)
-writeData(Alat, "Cropland_mineraalimaa_raivio",Cropland_korotettu_mineraalimaa_raivio)
-writeData(Alat, "Cropland_elop_maa", Cropland_korotettu_elop)
-writeData(Alat, "Cropland_elop_maa_raivio",Cropland_korotettu_elop_raivio)
+addWorksheet(Alat, "Cropland_elop_maa_yksiv")
+addWorksheet(Alat, "Cropland_elop_maa_moniv")
+addWorksheet(Alat, "Cropland_elop_maa_raivio_yksiv")
+addWorksheet(Alat, "Cropland_elop_maa_raivio_moniv")
 
-writeData(Alat, "Grassland_mineraalimaa",Grassland_korotettu_mineraalimaa)
-writeData(Alat, "Grassland_mineraalimaa_raivio",Grassland_korotettu_mineraalimaa_raivio)
-writeData(Alat, "Grassland_elop_maa",Grassland_korotettu_elop )
-writeData(Alat, "Grassland_elop_maa_raivio", Grassland_korotettu_elop_raivio)
+addWorksheet(Alat, "Grassland_min_yksiv")
+addWorksheet(Alat, "Grassland_min_moniv")
+addWorksheet(Alat, "Grassland_min_raivio_yksiv")
+addWorksheet(Alat, "Grassland_min_raivio_moniv")
 
-saveWorkbook(Alat, file=here("Output/AreaAggregates/GTK_viljelyalat_BDLuokka_06022025.xlsx"))
+addWorksheet(Alat, "Grassland_elop_maa_yksiv")
+addWorksheet(Alat, "Grassland_elop_maa_moniv")
+addWorksheet(Alat, "Grassland_elop_maa_raivio_yksiv")
+addWorksheet(Alat, "Grassland_elop_maa_raivio_moniv")
+
+#Kirjoitetaan
+
+writeData(Alat, "Cropland_min_yksiv", Cropland_korotettu_mineraalimaa_yksiv )
+writeData(Alat, "Cropland_min_moniv", Cropland_korotettu_mineraalimaa_moniv)
+writeData(Alat, "Cropland_min_raivio_yksiv", Cropland_korotettu_mineraalimaa_raivio_yksiv)
+writeData(Alat, "Cropland_min_raivio_moniv",Cropland_korotettu_mineraalimaa_raivio_moniv)
+
+writeData(Alat, "Cropland_elop_maa_yksiv",Cropland_korotettu_elop_yksiv)
+writeData(Alat, "Cropland_elop_maa_moniv",Cropland_korotettu_elop_moniv)
+writeData(Alat, "Cropland_elop_maa_raivio_yksiv",Cropland_korotettu_elop_raivio_yksiv)
+writeData(Alat, "Cropland_elop_maa_raivio_moniv",Cropland_korotettu_elop_raivio_moniv)
+
+writeData(Alat, "Grassland_min_yksiv",Grassland_korotettu_mineraalimaa_yksiv)
+writeData(Alat, "Grassland_min_moniv",Grassland_korotettu_mineraalimaa_moniv)
+writeData(Alat, "Grassland_min_raivio_yksiv",Grassland_korotettu_mineraalimaa_raivio_yksiv)
+writeData(Alat, "Grassland_min_raivio_moniv",Grassland_korotettu_mineraalimaa_raivio_moniv)
+
+writeData(Alat, "Grassland_elop_maa_yksiv", Grassland_korotettu_elop_yksiv)
+writeData(Alat, "Grassland_elop_maa_moniv",Grassland_korotettu_elop_moniv)
+writeData(Alat, "Grassland_elop_maa_raivio_yksiv",Grassland_korotettu_elop_raivio_yksiv)
+writeData(Alat, "Grassland_elop_maa_raivio_moniv",Grassland_korotettu_elop_raivio_moniv)
+
+
+
+saveWorkbook(Alat, file=here("Output/AreaAggregates/GTK_viljelyalat_BDLuokka_07022025_korjatut_koodit.xlsx"),overwrite = T)
