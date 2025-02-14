@@ -10,6 +10,8 @@ source_lines <- function(file, lines){
 library(readxl)
 Apetit_lannoitus_ravinteet_eiluomua <- read_excel("Output/Ravinnedata/Apetit_lannoitus_ravinteet_eiluomua.xlsx")
 Lannoitus<-Apetit_lannoitus_ravinteet_eiluomua
+rm(Apetit_lannoitus_ravinteet_eiluomua)
+gc()
 
 #Pinta-aladatan luonti: 
 source_lines(here("Skriptit/Uudet skriptit/GTK_datan_aggregointi.R"),1:264)
@@ -36,58 +38,23 @@ kk<-unique(Alat$KASVINIMI_reclass)
 kk<-as.data.frame(kk)
 write.xlsx(kk, file="kasvikoodit.xlsx", overwrite = T)
 
-#Yksitulkintaiset tapaukset: 
-#Hernetyyppejä datassa: ruoka-, rehu- ja tarhaherne. 
-#Näille lannoituksen ravinteet kertoimesta "Pakasteherne", ainoa herne datassa. 
-#Annetaan näille datan ja lannoitusaineiston riveille koodiksi 1
-#Lanttu: 1 koodi, samalla nimellä. Koodiksi 2
-#keräkaali: 1 koodi nimellä "valko- eli keräkaali". Koodiksi 3
+rm(kk)
+# Otetaan sisään kasvien ryhmittelyavain lannoitustarpeen mukaan
+# Yhdistetään lannoitustarpeen määrittävä ryhmä-ID kasvikoodin perusteella pinta-aloihin
 
-#Muut:
-#Punajuuri datassa nimellä "punajuurikas ja keltajuurikas". Koodiksi 4
-#Punajuuren lannoitsmäärälle 2 koodia, "PUNAJUURI", BF-PUNAJUURI PYÖREÄ". Lasketan näistä keskiarvo. 
+library(readxl)
+Apetit_lannoitustarve_peltodata_avain <- read_excel("Data/Ravinnelaskennan_aineisto/Apetit_lannoitustarve_peltodata_avain.xlsx")
+Apetit_lannoitustarve_peltodata_avain[4:length(Apetit_lannoitustarve_peltodata_avain)]<-NULL
+Apetit_lannoitustarve_peltodata_avain$KASVINIMI<-NULL
+colnames(Alat)[5]<-"KASVIKOODI"
 
-#Perunat: useita luokkia datassa. Koodiksi 5.  
-#Tärkkelysperuna
-#"Tärkkelysperunan oma siemenlisäys
-#Ruokaperuna
-#Siemenperuna (sertifioidun siemenen tuotantoon)"
-#Lannoitusmäärälle useita kertoimia "BF-PERUNA"            "IP-KESÄPERUNA"        "PERUNA"  
+if(nrow(merge(Alat, Apetit_lannoitustarve_peltodata_avain, by="KASVIKOODI")) != 1097531) {
+  stop("VÄÄRÄ RIVIMÄÄRÄ, TARKISTA KOHDISTUSAVAIN")}
 
-#Samoin porkkana. Koodiksi 6 
-#Useita lannoituskoodeja: "IP-PORKKANA KELTAINE" "PORKKANA" "IP-VIIPALEPORKKANA"  "BF-PORKKANA"
+Alat<-merge(Alat, Apetit_lannoitustarve_peltodata_avain, by="KASVIKOODI")
+colnames(Alat)[colnames(Alat)=="ID"]<-"Lannoitus_ID"
 
-#ja palsternakka. Koodiksi 7
-#Useita lannoituskoodeja: "PALSTERNAKKA" "BF-PALSTERNAKKA"
 
-#Kaikille muille koodiksi nolla. 
-
-#Tällä koodauksella yhdistetään lannoitekerroin aineistoon. 
-
-Alat <- Alat %>% mutate(
-  Lannoitus_ID = case_when(
-    KASVINIMI_reclass %in% c("Ruokaherne", 
-                             "Rehuherne", 
-                             "Tarhaherne") ~ 1,
-    KASVINIMI_reclass %in% c("Lanttu") ~ 2,
-    KASVINIMI_reclass %in% c("Valko- eli keräkaali") ~ 3,
-    KASVINIMI_reclass %in% c("Punajuurikas ja keltajuurikas") ~ 4,
-    KASVINIMI_reclass %in% c(
-      "Tärkkelysperuna",
-      "Tärkkelysperunan oma siemenlisäys",
-      "Ruokaperuna",
-      "Siemenperuna (sertifioidun siemenen tuotantoon)",
-      "Ruokateollisuusperuna"
-    ) ~ 5,
-    KASVINIMI_reclass %in% c("Porkkana") ~ 6,
-    KASVINIMI_reclass %in% c("Palsternakka") ~ 7,
-    KASVINIMI_reclass %in% c("Kesäkurpitsa") ~ 8,
-    KASVINIMI_reclass %in% c("Kukkakaali") ~ 9,
-    KASVINIMI_reclass %in% c("Pinaatti") ~ 10,
-    KASVINIMI_reclass %in% c("Mukulaselleri") ~ 11,
-    .default = 0
-  ))
-  
 #Lannoitusdataan vastaava koodaus. 
 
 Lannoitus <- Lannoitus %>% 
@@ -104,17 +71,49 @@ Lannoitus <- Lannoitus %>%
     Sopimuskasvi_nimi %in% c("KESÄKURPITSA", "IP-KESÄKURPITSA KELT") ~ 8,
     Sopimuskasvi_nimi %in% c("KUKKAKAALI") ~ 9,
     Sopimuskasvi_nimi %in% c("PINAATTI") ~ 10,
-    Sopimuskasvi_nimi %in% c("MUKULASELLERI") ~ 11,
+    Sopimuskasvi_nimi %in% c("MUKULASELLERI", "BF-MUKULASELLERI") ~ 11,
     .default = 0
   ))
 
-#Ryhmien mukaiset keskiarvoiset ravinnetta lannoitteesta/hehtaari kertoimet näille. 
-#Ryhmäksi 0 merkitään Default-kasvit, eli kaikki sellaiset peltodatan asiat joille ei omaa lannoituskerrointa. Keskiarvotus ryhmiä huomioimatta
+#Ryhmien mukaiset keskiarvoiset ravinnetta lannoitteesta/hehtaari kertoimet lasketaan näille, ja kohdistetaan ID-tunnisteella peltolohkodatan kasveille. 
 
 
-a<-Lannoitus %>% filter(Lannoitus_ID != 0) %>% group_by(Lannoitus_ID) %>% summarise(Typpea_hehtaarille_keskiarvo = mean(N_kg_ha_keskiarvo),
+a<-Lannoitus %>% group_by(Lannoitus_ID) %>% summarise(Typpea_hehtaarille_keskiarvo = mean(N_kg_ha_keskiarvo),
                                                                                  Fosforia_hehtaarille_keskiarvo = mean(P_kg_ha_keskiarvo),
                                                                                  Kaliumia_hehtaarille_keskiarvo = mean(K_kg_ha_keskiarvo))
+
+#Erikoistapaukset
+
+#Ryhmä 12: Keskimääräinen vihannes, sisältäen 
+#"LANTTU" ID 2
+#"KERÄKAALI" ID 3 
+#"PUNAJUURI" ID 4             
+#"IP-PORKKANA KELTAINE"  #"PORKKANA" #"IP-VIIPALEPORKKANA"  #"BF-PORKKANA"  ID 6
+#"PALSTERNAKKA" #"BF-PALSTERNAKKA" ID 7 
+#KESÄKURPITSA, #IP-KESÄKURPITSA KELT ID 8 
+#"KUKKAKAALI" ID 9
+#"PINAATTI" ID 10 
+#"MUKULASELLERI" #"BF-MUKULASELLERI" ID 11
+
+averageVeggie<-Lannoitus %>% filter(Lannoitus_ID %in% c(2,3,4,seq(6,11,1))) %>% summarise(Typpea_hehtaarille_keskiarvo = mean(N_kg_ha_keskiarvo),
+                                                                           Fosforia_hehtaarille_keskiarvo = mean(P_kg_ha_keskiarvo),
+                                                                           Kaliumia_hehtaarille_keskiarvo = mean(K_kg_ha_keskiarvo)) %>% add_column(Lannoitus_ID = 12)
+
+#Käytetään vihanneksille, joille datassa ei suoraa vastinetta
+
+a<-rbind(a,averageVeggie)
+
+#Ryhmä 9999: laitumet ym. joita ei lannoiteta, ravinnekerroin nolla. 
+
+No_fert<-tibble(Typpea_hehtaarille_keskiarvo = 0,
+                  Fosforia_hehtaarille_keskiarvo = 0,
+                  Kaliumia_hehtaarille_keskiarvo =0,
+                  Lannoitus_ID = 9999) 
+
+a<-rbind(a, No_fert)
+rm(No_fert)
+
+#ryhmä 0: kasvit joille ei Apetit-datassa vastinetta. Lasketaan lannoitus keskiarvottamalla yli kasvityyppien. 
 #Nollaryhmä: keskiarvotetaan lannoitusdatan kasvit erittelemättä niiden tyyppiä
 
 b <- Lannoitus %>% summarise(
@@ -124,7 +123,7 @@ b <- Lannoitus %>% summarise(
 ) %>% mutate (Lannoitus_ID = 0)
 
 Lannoiteravinne_kertoimet<-rbind(a,b)
-rm(a,b,kk, Lannoitus)
+rm(a,b, Lannoitus)
 
 #Yhdistetään kertoimet ja kasvin viljelyala
 
@@ -138,7 +137,7 @@ Data<-Data %>% mutate(Typpea_kg = Typpea_hehtaarille_keskiarvo*Maannossumma,
                 Fosforia_kg = Fosforia_hehtaarille_keskiarvo*Maannossumma,
                 Kaliumia_kg = Kaliumia_hehtaarille_keskiarvo*Maannossumma) 
 
-Aggregointi_kasvit<-Data %>% group_by(Tuotantosuunta, KASVIKOODI_lohkodata_reclass,KASVINIMI_reclass) %>% summarise_at(c("Typpea_kg","Fosforia_kg","Kaliumia_kg"),sum) 
+Aggregointi_kasvit<-Data %>% group_by(Tuotantosuunta, KASVIKOODI,KASVINIMI_reclass) %>% summarise_at(c("Typpea_kg","Fosforia_kg","Kaliumia_kg"),sum) 
 colnames(Aggregointi_kasvit)[2]<-"Kasvikoodi"
 
 #Kategoriatiedot lisäaggregointeihin
@@ -147,15 +146,49 @@ Kasvikategoriat_avain <- read_excel("Data/Kasvikategoriat_avain.xlsx")
 
 Aggregointi_kasvit<-inner_join(Aggregointi_kasvit, Kasvikategoriat_avain, by="Kasvikoodi") %>% mutate(Kasvi = NULL)
 
-Kesannot<-filter(Aggregointi_kasvit, Tuoteryhmä == "Kesannot,laitumet,yms.")
-Kasvit <-filter(Aggregointi_kasvit, Tuoteryhmä != "Kesannot,laitumet,yms.") 
+
+
+#ETOL-ryhmät ja ETTL-ryhmät
+
+library(readxl)
+ETOL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                                                        sheet = "Tuotantosuunnat ryhmittäin")
+colnames(ETOL)[colnames(ETOL)=="Tuotantosuunta_original"]<-"Tuotantosuunta"
+#Välilyönnit pois tuotantosuuntanimistä
+Aggregointi_kasvit<-Aggregointi_kasvit %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                  Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                  Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                  Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                  Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                  Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                  Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                  Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                  .default = Tuotantosuunta))
+
+Aggregointi_kasvit<-inner_join(Aggregointi_kasvit, ETOL, by = "Tuotantosuunta")
+
+
+ETTL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                   sheet = "Kasvit_ETTL_koodeittain")
+colnames(ETTL)[colnames(ETTL)=="Ruokaviraston koodi"]<-"Kasvikoodi"
+ETTL$`Ruokaviraston nimi`<-NULL
+
+Aggregointi_kasvit<-inner_join(Aggregointi_kasvit, ETTL, by="Kasvikoodi")
+
+#ETTL-ETOL aggregointi
+
+Aggregointi_ETOL_ETTL<-Aggregointi_kasvit %>% group_by(ETOL, ETTL, `ETTL Nimike`) %>% summarise_at(c("Typpea_kg", "Fosforia_kg", "Kaliumia_kg"), sum)
+
 
 library(openxlsx)
 
 Output<- createWorkbook()
-addWorksheet(Output, "Kasvit_ei_kesantoja")
-writeData(Output, "Kasvit_ei_kesantoja", Kasvit)
-addWorksheet(Output, "Kesannot")
-writeData(Output, "Kesannot", Kesannot)
+addWorksheet(Output, "Kasvit")
+addWorksheet(Output, "ETOL_ETTL")
+writeData(Output, "Kasvit", Aggregointi_kasvit)
+writeData(Output, "ETOL_ETTL", Aggregointi_ETOL_ETTL)
 
-saveWorkbook(Output,here("Output/Ravinnedata/Lannoiteravinteet_gtkdata.xlsx"))
+
+saveWorkbook(Output,here("Output/Ravinnedata/Lannoiteravinteet_tarkennettu_gtkdata_0225.xlsx"), overwrite = T )
+
+

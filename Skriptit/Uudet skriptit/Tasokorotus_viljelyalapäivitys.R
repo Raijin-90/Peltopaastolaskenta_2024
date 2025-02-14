@@ -17,14 +17,6 @@ for (i in seq_along(Lehdet)){
   addWorksheet(Output, Lehdet[i])
 } 
 
-
-
-
-
-
-
-
-
 ######################################
 #LASKENTA ####
 #Data sisään. 
@@ -32,6 +24,10 @@ for (i in seq_along(Lehdet)){
 library(here);library(readxl);library(tidyverse)
 
 #Myös grasslandin rakenne on erilainen, koska tuotteita on vain 1 ("Muu")
+
+
+
+
 
 x <- read_excel("D:/Peltopaastolaskenta_2024/Viljelyalapäivitys_2025_taitto_tasokorjaus.xlsx", 
                 sheet = "CropAnnOrgRaiv", skip=1, range="A2:AF200")
@@ -88,6 +84,22 @@ x[3:length(x)]<-sweep(x[3:length(x)],2, Korotetut_alat, FUN = "*")
 
 sum(colSums(x[3:length(x)]))
 sum(rowSums(x[3:length(x)]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #KIRJOITTAMINEN JA TULOSTUS
 #TÄNNE VAIHDETTAVA, MILLE LEHDELLE MIKÄKIN KATEGORIA KIRJOITETAANc
