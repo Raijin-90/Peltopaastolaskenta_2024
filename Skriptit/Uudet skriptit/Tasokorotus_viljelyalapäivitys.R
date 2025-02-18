@@ -86,21 +86,6 @@ sum(colSums(x[3:length(x)]))
 sum(rowSums(x[3:length(x)]))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #KIRJOITTAMINEN JA TULOSTUS
 #TÄNNE VAIHDETTAVA, MILLE LEHDELLE MIKÄKIN KATEGORIA KIRJOITETAANc
 

@@ -147,13 +147,12 @@ Data_list<-map(Data_list,\(x) addColumns(x))
 Data_list<-map(Data_list, ~ relocate(.x, any_of(Kaikki_etolkoodit)))
 
 
-#Tuoteosan täydennys. 
+#Tuoteosan täydennys. ####
 #Pulmallinen vaihe: croplandista puuttuu tuotesuunnassa kaikki Muu peltoala, perennoista annualit, ja toisinpäin. Jokaisesta puuttuu eri tuotteet
 #Tuotekoodien täytössä pitää tehdä erillinen tarkistus joka listaelementin puuttuvista koodeista, ja erillinen liitos (nollarivi) kullekin niistä. 
 
-
 #Kaikki, tuotteet alkutuotannosta, täysi vektori. Kaikki "Eläviin lehmiin 014110" asti. Vain sellaiset, joiden osalta peltolohkot ovat relevantti asia (kasvi-RACit), ei eläimiä eikä jalosteita. 
-#Lista tuotteista  ####
+#Lista tuotteista 
 Taydennettavat_tuotteet<-c("011111",
 "011112a",
 "011112b",
@@ -385,6 +384,8 @@ rm(Puuttuvat)
 
 #Tämä lista voidaan nyt yhdistää rivisuunnassa (rbind) kiinni Data_listiin, 1. lista DataList 1:een ja niin edelleen. 
 
+#Sarakenimien oikaisu####
+#Oikaisuvektori 
 Oikaisu<-c("ETTL",
 "0111a",
 "0111b",
@@ -447,8 +448,19 @@ names(Combined_list)<-c("GrassPerMinRaiv",
                     "CropAnnOrg")  
 
 
+#SORTTAUS TUOTERIVIEN MUKAAN ####
+
 #Sortataan täydennetty lista Taydennettavat_tuotteet-tuotevektorin mukaan, jossa jokainen alkutuotantoon kuuluva kasvi-RAC (ei jalosteita eikä eläimiä). Väli "durumvehnä" -> "istutustuotteet...jne".   011111->01301
 
+
+
+#' Sort a data frame or matrix by the values in a given column
+#'
+#' @param x A data frame or matrix to sort.
+#' @param ETTL The name of the column containing the values to sort by.
+#' @param Taydennettavat_tuotteet A vector of unique values to use as levels for the factorization of `ETTL`.
+#' @return A sorted version of `x` based on the values in `ETTL`.
+#' @export
 
 Rivisorttaus<-function(x){
   
@@ -461,6 +473,9 @@ Combined_list<-map(Combined_list, Rivisorttaus)
 
 
 rm.all.but(c("Combined_list","Data_list","Data_list_BD"))
+
+
+
 
 
 
