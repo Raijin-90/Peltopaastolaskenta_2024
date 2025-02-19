@@ -69,6 +69,14 @@ rm(Aggregointifunktio)
 #Puuttuvien sarakkeiden lisäys
 
 #Luodaan funktio, joka muuttaa x:n kolumnin nr. 8 nimeksi "Hehtaaria" ja kääntää pitkän muodon. 
+
+#' Custom Function
+#'
+#' This function renames the columns of a dataframe and then pivots it wider.
+#' @param x A dataframe with columns "ETOL_koodi" and "Hehtaaria".
+#' @return A wide dataframe with renamed columns and a pivot table.
+#' @export
+
   customFunction <- function(x) {
     rename(x, "Hehtaaria" = 3) %>%  pivot_wider(
       names_from = "ETOL_koodi",
