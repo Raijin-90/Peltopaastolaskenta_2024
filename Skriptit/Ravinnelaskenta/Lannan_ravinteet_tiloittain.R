@@ -2,7 +2,7 @@
 #Varastolannan (pelloille levitettävän) sisältämien typpi- ja fosforimassan laskenta tilakohtaisesti
 #Eläinmäärien ja Biomassa-atlaksen lannan ravinnesisältökerrointen<
 
-library(tidyverse);library(varhandle)
+library(here);library(tidyverse);library(varhandle)
 
 #Data sisään. Eläinsuojalantaa ei levitetä pelloille, jätetään siksi ulos.
 
@@ -43,6 +43,11 @@ Elainmaarat<-Elainmaarat %>% mutate(Varastolannan_typpi_kg = Eläintä*LantaV_TN
                        Varastolannan_fosfori_kg = Eläintä*LantaV_TP)
 
 rm.all.but("Elainmaarat")
+
+
+
+
+
 
 
 #Aggregointi tilatasolle
