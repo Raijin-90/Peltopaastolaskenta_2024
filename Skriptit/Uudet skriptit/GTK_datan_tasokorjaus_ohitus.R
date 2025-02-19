@@ -217,7 +217,7 @@ sum(Cropland_elop_alat_raivio[6:length(Cropland_elop_alat_raivio)])+
 sum(Grassland_mineraalimaa_alat[6:length(Grassland_mineraalimaa_alat)])+
 sum(Grassland_mineraalimaa_alat_raivio[6:length(Grassland_mineraalimaa_alat_raivio)])+
 sum(Grassland_elop_alat[6:length(Grassland_elop_alat)])+
-sum(Grassland_elop_alat_raivio[6:length(Grassland_elop_alat_raivio)])
+  sum(Grassland_elop_alat_raivio[6:length(Grassland_elop_alat_raivio)])
 
 
 

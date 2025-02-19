@@ -143,19 +143,19 @@ Eläintilat<-c("Sikatilat",
               "Turkistilat")
 
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1400] <- 1400
+                                       GTKdata$KASVIKOODI == 1400] <- 1400
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1120] <- 1120
+                                       GTKdata$KASVIKOODI == 1120] <- 1120
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1110] <- 1110
+                                       GTKdata$KASVIKOODI == 1110] <- 1110
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1230] <- 1230
+                                       GTKdata$KASVIKOODI == 1230] <- 1230
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1220] <- 1220
+                                       GTKdata$KASVIKOODI == 1220] <- 1220
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1410] <- 1410
+                                       GTKdata$KASVIKOODI == 1410] <- 1410
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Eläintilat &
-                                           GTKdata$KASVIKOODI == 1330] <- 1330 #syysohra
+                                       GTKdata$KASVIKOODI == 1330] <- 1330 #syysohra
 
 
 #Elintarviketilat - elintarvikeviljaa
@@ -165,19 +165,19 @@ Kasvitilat <- unique(Kasvitilat)
 
 
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1400] <- 1400
+                                       GTKdata$KASVIKOODI == 1400] <- 1400
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1120] <- 1120
+                                       GTKdata$KASVIKOODI == 1120] <- 1120
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1110] <- 1110
+                                       GTKdata$KASVIKOODI == 1110] <- 1110
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1230] <- 1230
+                                       GTKdata$KASVIKOODI == 1230] <- 1230
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1220] <- 1220
+                                       GTKdata$KASVIKOODI == 1220] <- 1220
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1410] <- 1410
+                                       GTKdata$KASVIKOODI == 1410] <- 1410
 GTKdata$KASVIKOODI_lohkodata_reclass[GTKdata$Tuotantosuunta %in% Kasvitilat &
-                                           GTKdata$KASVIKOODI == 1330] <- 1330 #syysohra
+                                       GTKdata$KASVIKOODI == 1330] <- 1330 #syysohra
 
 
 #Annetaan nimi uudelleenluokitetuille kasvikoodeille
