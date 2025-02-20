@@ -231,7 +231,7 @@ rm(Yhdistetty_peltodata_raivaukset_rehuvilja)
 attach(GTKdata)
 GTKdata$Eloperaista <-
   (
-  OHUT_TURVEKERROS__TVO__RT + PAKSU_TURVEKERROS__TVP__RT
+    OHUT_TURVEKERROS__TVO__RT + PAKSU_TURVEKERROS__TVP__RT
   ) / 10000 #m2 to ha
 
 

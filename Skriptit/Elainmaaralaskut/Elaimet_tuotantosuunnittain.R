@@ -218,23 +218,27 @@ Data<-Data %>% mutate(Aggregoitu_elainluokka=case_when(Elaintyyppi %in% Naudat ~
                                                  Elaintyyppi %in% Muut ~ "Muut_elaimet",
                                                  )) 
 
+
+
+
+
+
+
 Data<-Data %>% group_by(ETOL_koodi,ETOL, Aggregoitu_elainluokka) %>% summarise(Elainta_yht = sum(Elainta)) 
-
-Data<-Data %>% group_by(Aggregoitu_elainluokka) %>% mutate(Elaintyyppia_yht = sum(Elainta_yht))
-
 
 #Tässä tilakohtaisessa analyysissä ei ole mukana turkistilojen minkkejä, supeja ja kettuja, koska lantalaskennassa niiden tilastoista poimittu kokonaismäärä allokoitiin suoraan ja kokonaan turkistarhat-toimialalle. 
 #Turkiseläinten tiloittainen määrä ei ole tiedossa. Sillä ei kuitenkaan ole tässä vaiheessa väliä, millä turkistilalla on minkäkin monta eläintä. Tärkeintä on saada tuotantosuunnittainen eläinmäärä stemmaamaan 
-#Lisätään tarvittavat määrät näitä eläimiä kategoriaan Turkistarhat, eläintyyppiin muut eläimet. 
+#Lisätään tarvittavat määrät näitä eläimiä kategoriaan Turkistarhat, eläintyyppiin muut eläimet.   
 
 Minkit<-1900000	
 Ketut<-2492000	
 Supit<-148000
 
+Turkiselaimia<-Ketut+Minkit+Supit
 
+Data$Elainta_yht[Data$Aggregoitu_elainluokka == "Muut_elaimet" & Data$ETOL == "Turkistarhaus"]<-Data$Elainta_yht[Data$Aggregoitu_elainluokka == "Muut_elaimet" & Data$ETOL == "Turkistarhaus"]+Turkiselaimia
 
-
-
+Data<-Data %>% group_by(Aggregoitu_elainluokka) %>% mutate(Elaintyyppia_yht = sum(Elainta_yht))
 
 
 Data<-Data %>% mutate(Elaintyypin_jakauma_tuotantos = Elainta_yht/Elaintyyppia_yht) %>% arrange(Aggregoitu_elainluokka) 
