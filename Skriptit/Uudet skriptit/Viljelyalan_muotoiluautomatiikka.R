@@ -480,7 +480,7 @@ x %>% arrange(factor(ETTL, levels=Taydennettavat_tuotteet))
 Combined_list<-map(Combined_list, Rivisorttaus)
 
 
-rm.all.but(c("Combined_list","Data_list","Data_list_BD"))
+rm.all.but(c("Combined_list", "Listat"), keep_functions = FALSE)
 
 
 
