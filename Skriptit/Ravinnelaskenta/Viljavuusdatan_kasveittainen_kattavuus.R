@@ -1,4 +1,4 @@
-library(tidyverse);library(here);library(varhandle)
+library(tidyverse);library(here);library(varhandle);library(openxlsx)
 
 source_lines <- function(file, lines){
   source(textConnection(readLines(file)[lines]))
@@ -21,10 +21,48 @@ rm.all.but(c("GTKdata","Viljavuus_aggregointi_multavuus"))
 
 source_lines(here("Skriptit/Uudet skriptit/Viljavuus_esikasittely_aggregointi.R"),250:266)
 
+#Kari Koppelmäen kertoimissa joilla lannoitteiden sisältämät ravinteet lasketaan, tulee luultavasti olemaan tarkan maalajoluokan vaativia eroja (esim. hiesumaat yms). Aggregointi pitää silloin tehdä käyttäen datan alkuperäisiä
+#maalajiluokka-prosentteja (hiesu% ym). Multavuuden mukaan määrittelemällä ei päästä kuin erottamaan mineraalit mullasta&turpeesta. 
+
 #Aggregoidaan kasvitasolle
 #Tavoitteena verrata kasveittain, kuinka hyvin pienempi viljavuusdata kattaa kokonaisen viljelyala-aineiston. 
 
+#Kasvinimikkeissä voi olla kirjoituseroja datojen kesken ("monivuotinen" VS "monivuot.")
+#Siksi aggregoidaan koodilla, liitetään nimi
 
-GTK_kasvit<-GTKdata %>% group_by(KASVIKOODI_lohkodata_reclass,KASVINIMI_reclass) %>% summarise(across(c("Maannossumma","Eloperaista","Mineraalia"),sum))
+GTK_kasvit<-GTKdata %>% group_by(KASVIKOODI_lohkodata_reclass) %>% summarise(across(c("Maannossumma"),sum))
+colnames(GTK_kasvit)[1:2]<-c("Kasvikoodi","Pinta_ala_gtk")
 
-Viljavuus_kasvit<-Viljavuus_aggregointi_multavuus %>% group_by(KASVITUNNU_reclass,KASVINIMI_reclass, Elop_ineral) %>% summarise(across(c(Maalajisumma),sum)) 
+Viljavuus_kasvit<-Viljavuus_aggregointi_multavuus %>% group_by(KASVITUNNU_reclass) %>% summarise(across(c(Maalajisumma),sum)) 
+colnames(Viljavuus_kasvit)[1:2]<-c("Kasvikoodi","Pinta_ala_viljavuus")
+
+
+#Nämä yhdistetään, nollat sallitaan x-framesta 
+
+kasveittainenKattavuus<-full_join(GTK_kasvit, Viljavuus_kasvit, by=c("Kasvikoodi"))
+rm.all.but("kasveittainenKattavuus")
+
+kasveittainenKattavuus[is.na(kasveittainenKattavuus)]<-0
+
+#Kasvien nimet
+
+library(readxl)
+Kasvikategoriat_avain <- read_excel("Data/Kasvikategoriat_avain.xlsx")
+Kasvikategoriat_avain<-Kasvikategoriat_avain %>% select(Kasvikoodi, Kasvi)
+
+kasveittainenKattavuus<-left_join(kasveittainenKattavuus, Kasvikategoriat_avain, by="Kasvikoodi")
+
+sum(kasveittainenKattavuus$Pinta_ala_viljavuus)
+sum(kasveittainenKattavuus$Pinta_ala_gtk)
+
+
+#kattavuus%: kuinka iso osa gtk-datan kokonaismäärästä kasvia (kattavampi data) löytyy viljavuuspuolelta
+
+kasveittainenKattavuus<-kasveittainenKattavuus %>% mutate(Viljavuusdatan_kattavuusprosentti = (Pinta_ala_viljavuus/Pinta_ala_gtk)*100 )
+
+kasveittainenKattavuus<- kasveittainenKattavuus %>% select(Kasvikoodi, Kasvi, Pinta_ala_gtk, Pinta_ala_viljavuus, Viljavuusdatan_kattavuusprosentti)
+
+Output<-createWorkbook()
+Output %>% addWorksheet("Kattavuusdata_gtk_viljav_kasvit")
+writeData(Output, "Kattavuusdata_gtk_viljav_kasvit", kasveittainenKattavuus)
+saveWorkbook(Output,here("Output/Ravinnedata/Kattavuusvertailu_kasvit_gtk_viljavuus.xlsx"))
