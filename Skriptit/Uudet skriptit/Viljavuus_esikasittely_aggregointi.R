@@ -87,7 +87,7 @@ Kasvitilat<-unique(Kasvitilat)
 
 Viljavuusdata$KASVITUNNU_reclass[Viljavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1400]<-1400
 Viljavuusdata$KASVITUNNU_reclass[Viljavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1120]<-1120
-Viljavuusdata$KASVITUNNU_reclass[Viljaavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1110]<-1110
+Viljavuusdata$KASVITUNNU_reclass[Viljavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1110]<-1110
 Viljavuusdata$KASVITUNNU_reclass[Viljavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1230]<-1230
 Viljavuusdata$KASVITUNNU_reclass[Viljavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1220]<-1220
 Viljavuusdata$KASVITUNNU_reclass[Viljavuusdata$Tuotantosuunta %in% Kasvitilat & Viljavuusdata$KASVITUNNU ==1410]<-1410
