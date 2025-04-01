@@ -197,7 +197,6 @@ Cropland_mineraalimaa_alat_raivio<-Cropland_korotettu_mineraalimaa_raivio
 Cropland_elop_alat_raivio<-Cropland_korotettu_elop_raivio
 
 
-
 sum(colSums(Cropland_mineraalimaa_alat[7:length(Cropland_mineraalimaa_alat)]))+
   sum(colSums(Cropland_mineraalimaa_alat_raivio[7:length(Cropland_mineraalimaa_alat_raivio)]))+
   sum(colSums(Cropland_elop_alat[7:length(Cropland_elop_alat)]))+
