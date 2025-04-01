@@ -63,16 +63,18 @@ saveWorkbook(Turkisdata, here("Output/Ravinnedata/Turkistilojen_pellot_kunnat_li
 
 rm.all.but(c("Turkiskuntien_pellot","Turkistarhaus_kunnittain_2015"))
 
-#Keskittymät
+#Keskittymät: poista kommentit seuraavista, jos haluat suodattaa vain turkistalouden keskittymiksi nimetyt kunnat. Muutoin saat kaikki. 
 
-Turkiskeskittymat<-Turkistarhaus_kunnittain_2015 %>% filter(Keskittymä == "x")
-Turkiskeskittymat<-unique(Turkiskeskittymat$Kuntakoodi)
+#Turkiskeskittymat<-Turkistarhaus_kunnittain_2015 %>% filter(Keskittymä == "x")
+#Turkiskeskittymat<-unique(Turkiskeskittymat$Kuntakoodi)
 
 #Kuntakoodilla peltolohkojen irrotus
 
-Turkiskeskittyma_pellot <- Turkiskuntien_pellot %>% filter(Kuntakoodi %in% Turkiskeskittymat)
+#Turkiskeskittyma_pellot <- Turkiskuntien_pellot %>% filter(Kuntakoodi %in% Turkiskeskittymat)
 
-kunnat<-unique(Turkiskeskittyma_pellot$Kuntakoodi)
+#kunnat<-unique(Turkiskeskittyma_pellot$Kuntakoodi)
+
+Turkiskeskittyma_pellot<-Turkiskuntien_pellot
 
 Turkiskeskittyma_pellot<-Turkiskeskittyma_pellot %>% group_by(Kuntakoodi) %>% mutate(Kunnan_peltoalasumma = sum(Maannossumma))
 Turkiskeskittyma_pellot<-Turkiskeskittyma_pellot %>% mutate(Kunnan_peltoalajakauma = Maannossumma/Kunnan_peltoalasumma)
@@ -94,6 +96,6 @@ Turkiskeskittyma_pellot<-Turkiskeskittyma_pellot %>% mutate(Lohkoille_jaettu_fos
 Turkisravinteet_lohkoille<-createWorkbook()
 addWorksheet(Turkisravinteet_lohkoille,"Turkislanta_ravinteet_lohkoille")
 writeData(Turkisravinteet_lohkoille,"Turkislanta_ravinteet_lohkoille",Turkiskeskittyma_pellot)
-saveWorkbook(Turkisravinteet_lohkoille, here("Output/Ravinnedata/Turkislannan_ravinteet_jaettuna_pelloille_keskittymat.xlsx"),overwrite = T)
+saveWorkbook(Turkisravinteet_lohkoille, here("Output/Ravinnedata/Turkislannan_ravinteet_jaettuna_pelloille_kaikki.xlsx"),overwrite = T)
 
 gc()
