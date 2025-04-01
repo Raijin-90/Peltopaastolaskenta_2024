@@ -96,3 +96,4 @@ addWorksheet(Turkisravinteet_lohkoille,"Turkislanta_ravinteet_lohkoille")
 writeData(Turkisravinteet_lohkoille,"Turkislanta_ravinteet_lohkoille",Turkiskeskittyma_pellot)
 saveWorkbook(Turkisravinteet_lohkoille, here("Output/Ravinnedata/Turkislannan_ravinteet_jaettuna_pelloille_keskittymat.xlsx"),overwrite = T)
 
+gc()
