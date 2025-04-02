@@ -2,7 +2,7 @@
 #Kari K pyytänyt 1.4
 #Vaatii aggregoinnin muokkausta jotta kuntataso saadaan huomioitua
 
-library(stringr);library(usefun);library(varhandle);library(here)
+library(stringr);library(usefun);library(varhandle);library(here);library(tidyverse)
 
 #' Source specific lines in an R file
 #'
