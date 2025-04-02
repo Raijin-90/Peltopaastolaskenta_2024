@@ -92,7 +92,7 @@ Cropland_korotettu_mineraalimaa_raivio[6:length(Cropland_korotettu_mineraalimaa_
   })
 
 Grassland_korotettu_mineraalimaa_raivio[6:length(Grassland_korotettu_mineraalimaa_raivio)]<-
-  apply(Grassland_korotettu_mineraalimaa_raivio[6:length(Grassland_korotettu_mineraalimaa_raivio)], 2, function(x) {
+ apply(Grassland_korotettu_mineraalimaa_raivio[6:length(Grassland_korotettu_mineraalimaa_raivio)], 2, function(x) {
     x * raivaus_CO2_grassland_mineral
   })
 
