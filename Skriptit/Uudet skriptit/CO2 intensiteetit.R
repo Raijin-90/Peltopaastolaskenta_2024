@@ -94,7 +94,18 @@ Cropland_korotettu_mineraalimaa_raivio[6:length(Cropland_korotettu_mineraalimaa_
 Grassland_korotettu_mineraalimaa_raivio[6:length(Grassland_korotettu_mineraalimaa_raivio)]<-
  apply(Grassland_korotettu_mineraalimaa_raivio[6:length(Grassland_korotettu_mineraalimaa_raivio)], 2, function(x) {
     x * raivaus_CO2_grassland_mineral
-  })
+})
+
+
+#TEST: erroneus apply. Tämä käyttää erehdyksessä raivaamattoman grasslandin alaa, ja kertoo sitä raivatulla -> pientä yliarviota emissioon.  
+#Korjattu ylle 02042025
+
+#Grassland_korotettu_mineraalimaa[6:length(Grassland_korotettu_mineraalimaa)]<-
+  #apply(Grassland_korotettu_mineraalimaa[6:length(Grassland_korotettu_mineraalimaa)], 2, function(x) {
+    #x * raivaus_CO2_grassland_mineral
+  #})
+
+
 
 #Eloperainen maa 
 
