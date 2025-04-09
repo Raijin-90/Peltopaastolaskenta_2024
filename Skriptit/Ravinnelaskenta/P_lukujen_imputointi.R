@@ -402,6 +402,20 @@ Ei_Plukua_taydennys$KESKIARVO_ <-Ei_Plukua_taydennys$P_luku_mediaani
 
 #Poistetaan mediaani- ja keskiarvo P-kentät jotta dimensiot saadaan samaksi
 
+Ei_Plukua_taydennys$P_luku_keskiarvo<-NULL
 
+Ei_Plukua_taydennys$P_luku_mediaani<-NULL
+
+#Yhdistetään datat takaisin. 
+
+Imputoitu_aineisto<-rbind(Pluku_loytyy, Ei_Plukua_taydennys)
+
+sum(Imputoitu_aineisto$Maannossumma)
+
+Imputoitu_aineisto %>% filter(is.na(KESKIARVO_))
+
+######################################################
+
+write.csv2(Imputoitu_aineisto, file=here("Data/Lohkoaineisto_imputoidut_Pluvut.csv"))
 
 
