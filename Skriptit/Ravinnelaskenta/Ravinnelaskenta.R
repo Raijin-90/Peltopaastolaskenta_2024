@@ -87,3 +87,4 @@ lohkodataTrimmed$Pmass<-Pcoeff*lohkodataTrimmed$Pluku_ala_tulo
 t<-sum(lohkodataTrimmed$Pmass) == totalPMass
 stopifnot(t == TRUE)
 
+
