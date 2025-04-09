@@ -298,6 +298,15 @@ rm.all.but(c("Yhdistetty_peltodata_raivaukset_rehuvilja", "P_ka_median_tarkka","
 
 Pluku<-Yhdistetty_peltodata_raivaukset_rehuvilja %>% filter(!is.na(KESKIARVO_)) %>% select(PLTUNNUS, KESKIARVO_) #Pluku ei saa olla NA
 
+Tunnusluvut_tiedetyistä_pluvuista<-Pluku %>% summarise(Keskimaarainen_tunnettu = mean(KESKIARVO_),
+                    Hajonta = sd(KESKIARVO_),
+                    Minimi = min(KESKIARVO_),
+                    Maksimi =max(KESKIARVO_))
+
+
+
+
+
 #Pari tapausta, joissa sama peruslohko saakin useamman p-luvun arvon. 
 #Tarkastettu paikkatiedosta: kohdentuvat eri kasvulohkoille, eri sijainnit. 
 #Voi olla sijaintivirhe paikkatiedossa. Tai toisaalta Juhan mukaan datassa joitain harvoja pisteitä, joissa kasvulohkokohtaiset sijainnit p-lukupisteelle. Nämä siivottu suurimmaksi osaksi pois, nämä pari jäämistöä siitä 
