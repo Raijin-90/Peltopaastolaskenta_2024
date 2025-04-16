@@ -17,10 +17,6 @@ taydennettyLohkoaineisto <- read_delim("Data/Ravinnelaskennan_aineisto/Lohkoaine
                                               delim = ";", escape_double = FALSE, locale = locale(decimal_mark = ","), 
                                               trim_ws = TRUE)
 
-
-
-
-
 #Maalaji määrittyy GTK-datan järjestelmän mukaisesti: turve orgaanista, muu mineraalia 
 #Helppotajuistetaan aineistoa poistamalla tässä turhia muuttujia..
 lohkodataTrimmed<-taydennettyLohkoaineisto %>% select( 
@@ -86,5 +82,25 @@ lohkodataTrimmed$Pmass<-Pcoeff*lohkodataTrimmed$Pluku_ala_tulo
 
 t<-sum(lohkodataTrimmed$Pmass) == totalPMass
 stopifnot(t == TRUE)
+rm.all.but("lohkodataTrimmed")
 
+#Tulosten aggregointi
+#Tarkin taso kasvien osalta. ETOL-ETTL aggregointi onnistuu molemmista
 
+a<-lohkodataTrimmed %>% group_by(ETOL, ETOL_koodi) %>% summarise(P_load_kg = sum(Pmass))
+b<-lohkodataTrimmed %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(P_load_kg = sum(Pmass))
+c<-lohkodataTrimmed %>% group_by(ETOL, ETOL_koodi,KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(P_load_kg = sum(Pmass))
+d<-lohkodataTrimmed %>% group_by(ETOL, ETOL_koodi,ETTL, `ETTL Nimike`) %>% summarise(P_load_kg = sum(Pmass))
+
+Output<-createWorkbook()
+
+addWorksheet(Output, "ETOL")
+writeData(Output, "ETOL", a)
+addWorksheet(Output, "Kasveittain")
+writeData(Output, "Kasveittain", b)
+addWorksheet(Output, "ETOL&Kasvi")
+writeData(Output, "ETOL&Kasvi", c)
+addWorksheet(Output, "ETOL&ETTL")
+writeData(Output, "ETOL&ETTL", d)
+
+saveWorkbook(Output, here("Output/Ravinnedata/Emissiotulokset/Fosforin_jako_peltolohkoille.xlsx"), overwrite = T)
