@@ -34,7 +34,7 @@ colnames(aggreData)[colnames(aggreData)=="KASVINIMI_reclass"]<-"Kasvinimi"
 #Liitetään luomun osuus viljelyalasta (laskettu erikseen). Tätä prosenttia viljelyalaa ei lannoiteta. 
 
 library(readxl)
-luomuosuudet_viljelykasveille <- read_excel("Output/Ravinnedata/Luomuosuudet_viljelykasveille.xlsx")
+luomuosuudet_viljelykasveille <- read_excel(here("Output/Ravinnedata/Luomuosuudet_viljelykasveille_GTK.xlsx"))
 
 luomu<-luomuosuudet_viljelykasveille %>% select(Tuotantosuunta,Kasvikoodi,Kasvinimi,Luomuosuus_kaikki,Luomuosuus_mineraali,Luomuosuus_elop)
 
@@ -72,19 +72,28 @@ aggreData<-left_join(aggreData, lannoitus, by=c("Kasvikoodi"))
 
 #Tältä pohjalta säädetään turvemaiden typpilannoituksen kerrointa. Sen suuruudeksi asetetaan kautta linjan 80% mineraalimaiden lannoituksesta kullekin kasville
 
-aggreData<-aggreData %>% mutate(`N kg/ha organic soil` = 0.8* `N kg/ha mineral soil`)
+aggreData<-aggreData %>% mutate(`N kg/ha organic soil UUSI` = 0.8* `N kg/ha mineral soil`)
 
-
+aggreData[is.na(aggreData)]<-0
 
 #Lannoituksen ravinne-inputin laskenta (ravinnekerroin * perinteisen viljelyn  ala, EI LUOMUALAA)
 
 
 basicOutput<-aggreData %>% mutate(N_kg_mineral = Tavallinen_viljely_mineral*`N kg/ha mineral soil`,
-                     N_kg_organic = Tavallinen_viljely_elop *`N kg/ha organic soil`, 
+                     N_kg_organic = Tavallinen_viljely_elop *`N kg/ha organic soil UUSI`, 
                      P_kg_mineral = Tavallinen_viljely_mineral * `P kg /ha mineral soil`,
                      P_kg_organic = Tavallinen_viljely_elop *`P kg/ha orgainc soil`)
 
 
+basicOutput<-basicOutput %>% mutate(P_yht_tn = (P_kg_mineral+P_kg_organic)/1000,
+                       N_yht_tn = (N_kg_mineral+N_kg_organic)/1000)
+
+
+
+sum(basicOutput$Luomuala_elop)+sum(basicOutput$Luomuala_mineral)+sum(basicOutput$Tavallinen_viljely_elop)+sum(basicOutput$Tavallinen_viljely_mineral)
+
+
+sum(basicOutput$N_yht_tn)
 
 
 #Tulostyökirja
