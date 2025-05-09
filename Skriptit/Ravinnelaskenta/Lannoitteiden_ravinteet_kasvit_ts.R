@@ -36,9 +36,16 @@ colnames(aggreData)[colnames(aggreData)=="KASVINIMI_reclass"]<-"Kasvinimi"
 library(readxl)
 luomuosuudet_viljelykasveille <- read_excel(here("Output/Ravinnedata/Luomuosuudet_viljelykasveille_GTK.xlsx"))
 
+#Luomuerittely tilakoodin mukaan johtaa hieman suurempaan luomualaan
+#luomuosuudet_viljelykasveille <- read_excel(here("Output/Ravinnedata/Luomuosuudet_viljelykasveille_gtk_vertailtava_versio.xlsx"))
+
+
+
 luomu<-luomuosuudet_viljelykasveille %>% select(Tuotantosuunta,Kasvikoodi,Kasvinimi,Luomuosuus_kaikki,Luomuosuus_mineraali,Luomuosuus_elop)
 
 aggreData<-inner_join(aggreData, luomu, by=c("Tuotantosuunta","Kasvikoodi","Kasvinimi"))
+
+sum(aggreData$Maannossumma)
 
 rm.all.but(c("aggreData","lannoitus"))
 
@@ -52,7 +59,7 @@ aggreData<-aggreData %>% mutate(Tavallinen_viljely_kaikki = Maannossumma-Luomual
                      Tavallinen_viljely_elop = Eloperaista-Luomuala_elop,
                      Tavallinen_viljely_mineral = Mineraalia-Luomuala_mineral)
 
-#Osuusprosentteja ei tarvita enää
+#Osuusprosentteja ei tarvita enää 
 aggreData<-aggreData %>% select(c(-Luomuosuus_kaikki,-Luomuosuus_mineraali,-Luomuosuus_elop))
 
 
@@ -72,9 +79,12 @@ aggreData<-left_join(aggreData, lannoitus, by=c("Kasvikoodi"))
 
 #Tältä pohjalta säädetään turvemaiden typpilannoituksen kerrointa. Sen suuruudeksi asetetaan kautta linjan 80% mineraalimaiden lannoituksesta kullekin kasville
 
-aggreData<-aggreData %>% mutate(`N kg/ha organic soil UUSI` = 0.8* `N kg/ha mineral soil`)
+
 
 aggreData[is.na(aggreData)]<-0
+
+
+aggreData<-aggreData %>% mutate(`N kg/ha organic soil UUSI` = 0.8* `N kg/ha mineral soil`)
 
 #Lannoituksen ravinne-inputin laskenta (ravinnekerroin * perinteisen viljelyn  ala, EI LUOMUALAA)
 
@@ -94,11 +104,66 @@ sum(basicOutput$Luomuala_elop)+sum(basicOutput$Luomuala_mineral)+sum(basicOutput
 
 
 sum(basicOutput$N_yht_tn)
+sum(basicOutput$Luomuala_kaikki)
+sum(basicOutput$Tavallinen_viljely_kaikki)
 
+sum(basicOutput$Luomuala_kaikki)+sum(basicOutput$Tavallinen_viljely_kaikki)
+
+
+#Lannoitustarve per viljelykasvi
+
+A<-basicOutput %>% group_by(Kasvikoodi, Kasvinimi) %>% summarise(N_tarve_kg_min = sum(N_kg_mineral),  
+                                                              N_tarve_kg_org = sum(N_kg_organic),
+                                                              Mineraaliala = sum(Tavallinen_viljely_mineral),
+                                                              Eloperaista = sum(Tavallinen_viljely_elop))  %>% mutate(N_tarve_yht = N_tarve_kg_min+N_tarve_kg_org)
+
+                                                              
+                                                              
+                                                              
+                                                             
+
+#Per kasvi, kotieläintiloilla
+
+Animalfarms<-c("Hevostilat","Lammas- ja vuohitilat","Maitotilat", "Munatilat","Muut nautakarjatilat","Siipikarjatilat","Sikatilat","Turkistilat")
+
+B <- basicOutput %>% filter(Tuotantosuunta %in% Animalfarms) %>% group_by(Kasvikoodi, Kasvinimi) %>%   summarise(
+  N_tarve_kg_min = sum(N_kg_mineral),
+  N_tarve_kg_org = sum(N_kg_organic),
+  Mineraaliala = sum(Tavallinen_viljely_mineral),
+  Eloperaista = sum(Tavallinen_viljely_elop)) %>% mutate(N_tarve_yht = N_tarve_kg_min +
+                                              N_tarve_kg_org)
+
+
+#Huomioiden kasvitilat ja kasvi
+  
+C<-basicOutput %>% filter(!(Tuotantosuunta %in% Animalfarms)) %>% group_by(Kasvikoodi, Kasvinimi) %>%summarise(
+    N_tarve_kg_min = sum(N_kg_mineral),
+    N_tarve_kg_org = sum(N_kg_organic),
+    Mineraaliala = sum(Tavallinen_viljely_mineral),
+    Eloperaista = sum(Tavallinen_viljely_elop)
+    ) %>% mutate(N_tarve_yht = N_tarve_kg_min + N_tarve_kg_org)
+                                                
 
 #Tulostyökirja
 
 output<-createWorkbook()
 addWorksheet(output,"Ravinnemassat")
 writeData(output,"Ravinnemassat",basicOutput)
-saveWorkbook(output,file=here("Output/Ravinnedata/lannoitus_kasveille_Karin_kertoimet2.xlsx"), overwrite = T)
+saveWorkbook(output,file=here("Output/Ravinnedata/lannoitus_kasveille_Karin_kertoimet.xlsx"), overwrite = T)
+
+#Tarkennetut tulokset
+
+detailed_output<-createWorkbook()
+addWorksheet(detailed_output,"Lannoitustarve_kasvit")
+writeData(detailed_output,"Lannoitustarve_kasvit",A)
+
+addWorksheet(detailed_output,"Lannoitustrv_kasvit_elaintilat")
+writeData(detailed_output,"Lannoitustrv_kasvit_elaintilat",B)
+
+addWorksheet(detailed_output,"Lannoitustrv_kasvit_kasvitilat")
+writeData(detailed_output,"Lannoitustrv_kasvit_kasvitilat",C)
+
+saveWorkbook(detailed_output,file=here("Output/Ravinnedata/Lannoitustarvetarkennus.xlsx"), overwrite = T)
+
+
+

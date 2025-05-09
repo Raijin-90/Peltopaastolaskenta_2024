@@ -16,16 +16,19 @@ library(readr)
 Luomulohkot2017 <- read_delim("Data/Ravinnelaskennan_aineisto/Luomulohkot2017.csv", 
                               delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
-
 rm.all.but(c("GTKdata", "Luomulohkot2017"))
 
 #Yhdistetään Peruslohkokoodi ja kasvulohkotunniste -> peltopolygonikohtainen tunnistettava ID jolla voidaan linkittää luomulohkot erittelevä statustieto peltoaloihin
 
 GTKdata<-GTKdata %>% mutate(yhdistettyLohkokoodi = str_c(PLTUNNUS,KLTUNNUS))
 
+#Sama luomulohkot-taululle. 
+
 Luomulohkot<-Luomulohkot2017 %>% mutate(yhdistettyLohkokoodi = str_c(PERUSLOHKOTUNNUS,KASVULOHKOTUNNUS))
 
 Luomulohkot<-Luomulohkot %>% select(yhdistettyLohkokoodi, LUOMUN_VAIHE)
+
+Luomulohkot <- unique(Luomulohkot)
 
 rm.all.but(c("GTKdata","Luomulohkot"))
 
