@@ -136,12 +136,15 @@ B <- basicOutput %>% filter(Tuotantosuunta %in% Animalfarms) %>% group_by(Kasvik
 
 #Huomioiden kasvitilat ja kasvi
   
-C<-basicOutput %>% filter(!(Tuotantosuunta %in% Animalfarms)) %>% group_by(Kasvikoodi, Kasvinimi) %>%summarise(
+C<-basicOutput %>% 
+  filter(!(Tuotantosuunta %in% Animalfarms)) %>% 
+  group_by(Kasvikoodi, Kasvinimi) %>% 
+  summarise(
     N_tarve_kg_min = sum(N_kg_mineral),
     N_tarve_kg_org = sum(N_kg_organic),
     Mineraaliala = sum(Tavallinen_viljely_mineral),
-    Eloperaista = sum(Tavallinen_viljely_elop)
-    ) %>% mutate(N_tarve_yht = N_tarve_kg_min + N_tarve_kg_org)
+    Eloperaista = sum(Tavallinen_viljely_elop)) %>% 
+      mutate(N_tarve_yht = N_tarve_kg_min + N_tarve_kg_org)
                                                 
 
 #Tulostyökirja
