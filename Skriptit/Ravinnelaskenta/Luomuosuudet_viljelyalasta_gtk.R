@@ -16,7 +16,7 @@ library(readr)
 Luomulohkot2017 <- read_delim("Data/Ravinnelaskennan_aineisto/Luomulohkot2017.csv", 
                               delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
-rm.all.but(c("GTKdata", "Luomulohkot2017"))
+
 
 #Yhdistetään Peruslohkokoodi ja kasvulohkotunniste -> peltopolygonikohtainen tunnistettava ID jolla voidaan linkittää luomulohkot erittelevä statustieto peltoaloihin
 
@@ -30,7 +30,7 @@ Luomulohkot<-Luomulohkot %>% select(yhdistettyLohkokoodi, LUOMUN_VAIHE)
 
 Luomulohkot <- unique(Luomulohkot)
 
-rm.all.but(c("GTKdata","Luomulohkot"))
+
 
 
 #irrotellaan lohkot jotka luomudatassa. Otetaan vain ne jotka ovat luomuviljelyssä, eivät luomuviljelyn siirtymävaiheessa
@@ -38,6 +38,9 @@ rm.all.but(c("GTKdata","Luomulohkot"))
 luomuData<-inner_join(GTKdata, Luomulohkot, by="yhdistettyLohkokoodi")
 
 luomuData <- luomuData %>% filter(LUOMUN_VAIHE == "4 Luomuviljelyssä")
+
+
+
 
 
 rm.all.but(c("GTKdata","luomuData"))
@@ -103,9 +106,6 @@ luomutilat<-unique(Luomulohkot17$MAATILA_TUNNUS)
 rm(Luomulohkot17)
 
 luomuData<-GTKdata %>% filter(MAATILA_TUNNUS %in% luomutilat)  
-
-
-rm.all.but(c("GTKdata","luomuData"))
 
 #Aggregoidaan luomuala kasvi-tuotantosuuntatasolla
 

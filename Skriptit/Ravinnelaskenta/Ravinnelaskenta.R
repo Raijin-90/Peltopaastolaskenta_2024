@@ -104,3 +104,6 @@ addWorksheet(Output, "ETOL&ETTL")
 writeData(Output, "ETOL&ETTL", d)
 
 saveWorkbook(Output, here("Output/Ravinnedata/Emissiotulokset/Fosforin_jako_peltolohkoille.xlsx"), overwrite = T)
+
+
+
