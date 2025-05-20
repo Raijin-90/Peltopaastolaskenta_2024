@@ -71,7 +71,12 @@ Turkistarhaus_kunnittain_2015 <- read_excel("Data/Ravinnelaskennan_aineisto/Turk
                                             sheet = "2017")
 Turkistarhaus_kunnittain_2015<-Turkistarhaus_kunnittain_2015 %>% slice(-77:-79)
 
-Turkiskuntien_lohkot<-lohkodataTrimmed %>% filter(Kuntakoodi %in% Turkistarhaus_kunnittain_2015$Kuntakoodi)
+
+Turkiskunnat <- Turkistarhaus_kunnittain_2015 %>%  filter(!(is.na(Keskittymä)))
+Turkiskunnat<-unique(Turkistarhaus_kunnittain_2015$Kuntakoodi)
+
+
+Turkiskuntien_lohkot<-lohkodataTrimmed %>% filter(Kuntakoodi %in% Turkiskunnat)
 
 sum(Turkiskuntien_lohkot$Pmass)
 

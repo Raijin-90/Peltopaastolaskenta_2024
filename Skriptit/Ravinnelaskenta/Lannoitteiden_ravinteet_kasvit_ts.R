@@ -120,7 +120,8 @@ A<-basicOutput %>% group_by(Kasvikoodi, Kasvinimi) %>% summarise(N_tarve_kg_min 
                                                               
                                                               
                                                               
-                                                             
+#LASKETAAN ERILLISET KERTOIMET KASVI- JA ELÄINTILOILLE KASVEITTAIN. NÄILLÄ ALLOKOIDAAN TYPPIKUORMA MINERAALILANNOITTEISTA LOHKOILLE.                                                              
+#ERI ELÄINTILAT KÄYTTÄVÄT SIIS SAMAA KASVEITTAIN VAIHTELEVAA KERROINTA, JA ERI KASVITILAT SAMAA. 
 
 #Per kasvi, kotieläintiloilla
 
@@ -133,7 +134,7 @@ B <- basicOutput %>% filter(Tuotantosuunta %in% Animalfarms) %>% group_by(Kasvik
   Eloperaista = sum(Tavallinen_viljely_elop)) %>% mutate(N_tarve_yht = N_tarve_kg_min +
                                               N_tarve_kg_org)
 
-
+#PER KASVI, KASVITILOILLA
 #Huomioiden kasvitilat ja kasvi
   
 C<-basicOutput %>% 

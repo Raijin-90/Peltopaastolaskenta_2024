@@ -91,9 +91,6 @@ sum(lohkot_luomuviljelyssä$Maannossumma)+
 
 print("Tavanomainen viljelyala laskettu")
 
-rm.all.but(c("tavanomaisen_viljelyn_lohkot", "Kertoimet_kasveittain","Kertoimet_kasveittain_elaintilat","Kertoimet_kasveittain_kasvitilat"))
-
-
 #PINTA-ALOJEN AGGREGOINTI
 
 #Aggregoidut alat
@@ -123,16 +120,6 @@ aggregoidut_lohkot_kasveittain_kasvitilat<-tavanomaisen_viljelyn_lohkot %>%
             Mineraalia = sum(Mineraalia),
             Ala_yht = sum(Maannossumma))
 
-rm.all.but(
-  c("aggregoidut_lohkot_kasveittain",
-  "aggregoidut_lohkot_kasveittain_elaintilat",
-  "aggregoidut_lohkot_kasveittain_kasvitilat",
-  "Kertoimet_kasveittain_elaintilat",
-  "Kertoimet_kasveittain_kasvitilat",
-  "Kertoimet_kasveittain",
-  "tavanomaisen_viljelyn_lohkot")
-)
-
 #Kerrointen liittäminen aggregaatteihin
 colnames(aggregoidut_lohkot_kasveittain)[1:2]<-c("Kasvikoodi","Kasvinimi")
 Kertoimet_kasveittain<-Kertoimet_kasveittain %>% select(Kasvikoodi,Kasvinimi,typpikerroin_kg_ha,typpikerroin_org_maa_kg_ha)
@@ -159,7 +146,6 @@ Typpitarve_kasveittain_kasvitilat<-Typpitarve_kasveittain_kasvitilat %>% mutate(
                                                          kg_n_org = typpikerroin_org_maa_kg_ha*Eloperaista)
 
 
-rm.all.but(c("Typpitarve_kasveittain","Typpitarve_kasveittain_elaintilat","Typpitarve_kasveittain_kasvitilat","tavanomaisen_viljelyn_lohkot","Kertoimet_kasveittain","Kertoimet_kasveittain_kasvitilat","Kertoimet_kasveittain_elaintilat"))
 
 #LOHKOKOHTAINEN TYPPITARVE
 #Kerrointen sovittaminen yksittäisiin lohkoihin.
@@ -186,8 +172,6 @@ kasvitilalohkot<-left_join(kasvitilalohkot, Kertoimet_kasveittain_kasvitilat, by
 nrow(inner_join(elaintilalohkot, Kertoimet_kasveittain_elaintilat, by=c("KASVIKOODI_lohkodata_reclass"))) 
 elaintilalohkot<-left_join(elaintilalohkot, Kertoimet_kasveittain_kasvitilat, by=c("KASVIKOODI_lohkodata_reclass")) 
 
-rm.all.but(c("Typpitarve_kasveittain", "Typpitarve_kasveittain_elaintilat", "Typpitarve_kasveittain_kasvitilat", "kasvitilalohkot", "elaintilalohkot"))
-
 #Lohkoittainen typpikilojen laskenta. Kerrotaan typpikertoimella maalajin hehtaarimäärää, joko kokonaisalaa tai eloperäistä. 
 
 
@@ -207,16 +191,30 @@ Lohkoittainen_min_lann_typpi_elaintilat<-elaintilalohkot %>% mutate(Mineraalilan
 #Vastaa suunnilleen karin kertoimista laskettua totaalia n. 171 000 tn. 
 sum(Lohkoittainen_min_lann_typpi_elaintilat$Mineraalilannoitteen_typpi)/1000+sum(Lohkoittainen_min_lann_typpi_kasvitilat$Mineraalilannoitteen_typpi)/1000
 
+
+
+
+
+
 #Käyttömäärien aggregointi tuotantosuunnille. 
 
 Elaintila_typpi_aggre<-Lohkoittainen_min_lann_typpi_elaintilat %>% group_by(Tuotantosuunta) %>% summarise(Mineraalilannoitteiden_typpi_kg_kaikki_maa = sum(Mineraalilannoitteen_typpi),
-                                                                                   Mineraalilannoitteiden_typpi_elop_maa = sum(Mineraalilannoitteen_typpi_eloper_maa)) 
+                                                                                   Mineraalilannoitteiden_typpi_elop_maa = sum(Mineraalilannoitteen_typpi_eloper_maa),
+                                                                                   Viljelyala = sum(Maannossumma),
+                                                                                   Mineraaliala=sum(Mineraalia),
+                                                                                   Elop_ala = sum(Eloperaista)) 
 
 Kasvitilat_tyypi_aggre<-Lohkoittainen_min_lann_typpi_kasvitilat %>% group_by(Tuotantosuunta) %>% summarise(Mineraalilannoitteiden_typpi_kg_kaikki_maa= sum(Mineraalilannoitteen_typpi),
-                                                                                   Mineraalilannoitteiden_typpi_elop_maa = sum(Mineraalilannoitteen_typpi_eloper_maa)) 
+                                                                                   Mineraalilannoitteiden_typpi_elop_maa = sum(Mineraalilannoitteen_typpi_eloper_maa),
+                                                                                   Viljelyala = sum(Maannossumma),
+                                                                                   Mineraaliala=sum(Mineraalia),
+                                                                                   Elop_ala = sum(Eloperaista)) 
 
                                                                                    
 Mineraalilannoitteiden_typpi_aggre<-rbind(Elaintila_typpi_aggre, Kasvitilat_tyypi_aggre)
 
+
+
+
 library(openxlsx)
-write.xlsx(Mineraalilannoitteiden_typpi_aggre, file=here("Output/Ravinnedata/Emissiotulokset/Mineraalilannoitteiden_typpi_tuotantosuunnittain.xlsx"))
+write.xlsx(Mineraalilannoitteiden_typpi_aggre, file=here("Output/Ravinnedata/Emissiotulokset/Mineraalilannoitteiden_typpi_tuotantosuunnittain_alat.xlsx"))
