@@ -12,10 +12,10 @@ library(readxl)
 Biodiversiteettiluokat_kasveille <- read_excel("Data/Biodiversiteettiluokat_kasveille.xlsx")
 
 #Tuotejako
-#Käytetään 04062025 modifioitua tuotejakoa BD-laskentaan. Kesannot omana tuotteenaan, eivät enää osana Muuta peltoalaa. 
+
 library(readxl)
 ETTL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
-                                                        sheet = "Kasvit_ETTL_biodivers")
+                                                        sheet = "Kasvit_ETTL_BD")
 
 
 #' Source specific lines in an R file
@@ -33,12 +33,12 @@ source_lines(here("Skriptit/Uudet skriptit/GTK_datan_aggregointi.R"),1:260)
 
 Kokonaisala<-GTKdata %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Kokonaisviljelyala = sum(Maannossumma))
 
+
 #BD-kertoimien ja kokonaisalan yhdistäminen
 
 colnames(Biodiversiteettiluokat_kasveille)[1]<-"KASVIKOODI_lohkodata_reclass"
 
 Aineisto<-left_join(Kokonaisala, Biodiversiteettiluokat_kasveille, by="KASVIKOODI_lohkodata_reclass")
-
 
 #BD-kerrointen numeroarvojen liitto
 
@@ -55,7 +55,7 @@ Aineisto<-left_join(Aineisto, ETTL, by=c("KASVIKOODI_lohkodata_reclass"))
 
 #Toistuvia muuttujia pois
 
-Aineisto<-Aineisto %>% select(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass, Kokonaisviljelyala, Soveltuva_biodiv_kerroin, Skaalattu_kokonaisdiversiteetti,ETTL, `ETTL Nimike`, )
+Aineisto<-Aineisto %>% select(-Kasvi, -Biodiversiteettiluokitus_original, -Diversiteettikerroin, -`Ruokaviraston nimi`, -Soveltuva_biodiv_kerroin.x)
 
 
 #Viljelyalapainotettu diversiteettikerroin 
