@@ -1,4 +1,4 @@
-library(here);library(tidyverse);library(varhandle)
+library(here);library(tidyverse);library(varhandle);library(openxlsx)
 
 #Eläinmäärät tuotantosuunnittain, etol-luokituksen mukaisesti
 
@@ -163,6 +163,22 @@ if (nrow(a) > 0){
 rm.all.but("Data")
 
 #Aggregoidaan ja yksinkertaistetaan eläinten tyypittelyä rehuviljojen allokointia varten
+
+Tilat <- Data %>% group_by(Tilatunnus,ETOL_koodi,ETOL) %>% summarise_if(is.numeric, sum, na.rm = F) 
+
+Tilat<- Tilat %>% pivot_longer(cols= 4:length(Tilat), values_to = "Elainta", names_to = "Elaintyyppi")
+
+#Aggregoidaan tilan kokonais-eläinmäärä per tila 
+
+Elaimia_yht<-Tilat %>% group_by(Tilatunnus, ETOL_koodi, ETOL) %>% summarise(Yhteensa_elaimia = sum(Elainta))
+
+Elaimia_yht<-ungroup(Elaimia_yht)
+
+Keskimaar_elaimia<-Elaimia_yht %>% group_by(ETOL) %>% summarise(Elaimia_keskimaarin = mean(Yhteensa_elaimia))
+
+write.xlsx(Keskimaar_elaimia, file="Elainmaara_keskiarvo_tilatyypeittain.xlsx")
+
+
 
 Data<-Data %>% group_by(ETOL_koodi,ETOL) %>% summarise_if(is.numeric, sum, na.rm = F) 
 

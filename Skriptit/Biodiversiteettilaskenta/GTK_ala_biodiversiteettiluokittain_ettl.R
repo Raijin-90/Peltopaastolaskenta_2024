@@ -1,6 +1,5 @@
 
-
-library(varhandle);library(tidyverse);library(openxlsx)
+library(here);library(varhandle);library(tidyverse);library(openxlsx)
 
 
 #Pinta-ala-aggregaatti gtk-aineistosta, tarkkuustasona ETTL, ETOL, biodiversiteettiluokka. 
@@ -36,13 +35,11 @@ if(round(sum(a,b),0) != 2329482) {
  stop("VÄÄRÄ PINTA-ALA, TARKISTA AGGREGOINTI")}
 
 
-#Liitetään biodiversiteetin kerroin
+#Liitetään biodiversiteetin kerroin. 
 
 library(readxl)
-Biodiversiteettiluokat_kasveille <- read_excel("Data/Biodiversiteettiluokat_kasveille.xlsx", 
-                                               col_types = c("numeric", "text", "skip", 
-                                                             "text"))
-Biodiversiteettiluokat_kasveille$Kasvi<-NULL
+Biodiversiteettiluokat_kasveille <- read_excel("Data/Biodiversiteettiluokat_kasveille.xlsx")
+Biodiversiteettiluokat_kasveille<-Biodiversiteettiluokat_kasveille %>% select(-Diversiteettikerroin, -Biodiversiteettiluokitus_original, -Kasvi)                                               
 
 
 Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, Biodiversiteettiluokat_kasveille, by="Kasvikoodi")
@@ -96,88 +93,92 @@ Cropland_korotettu_elop<- Cropland_korotettu_elop %>% mutate(Tuotantosuunta = ca
                                                                                                      Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
                                                                                                      Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
                                                                                                      .default = Tuotantosuunta))
-  
+
   Cropland_korotettu_mineraalimaa<-Cropland_korotettu_mineraalimaa %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                                         .default = Tuotantosuunta))
-  
-  Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                                                       Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                                                       Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                                                       Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                                                       Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                                                       Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                                                       Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                                                       Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                                                       .default = Tuotantosuunta))
-  
-  Grassland_korotettu_elop<-Grassland_korotettu_elop %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                           Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                           Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                           Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                           Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                           Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                           Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                           Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                           .default = Tuotantosuunta))
-  
-  Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                                         .default = Tuotantosuunta))
-  Grassland_korotettu_mineraalimaa<- Grassland_korotettu_mineraalimaa %>%  mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                                             Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                                             Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                                             Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                                             Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                                             Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                                             Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                                             Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                                             .default = Tuotantosuunta))
-  
-  Grassland_korotettu_mineraalimaa_raivio <- Grassland_korotettu_mineraalimaa_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
-                                                                                                                           Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
-                                                                                                                           Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
-                                                                                                                           Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
-                                                                                                                           Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
-                                                                                                                           Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
-                                                                                                                           Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
-                                                                                                                           Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
-                                                                                                                           .default = Tuotantosuunta))
-  
-  
-  
-  #ETOL ja ETTL-koodit kiinni ####
-  
-  ETOL<-read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
-                   sheet = "Tuotantosuunnat ryhmittäin")
-  colnames(ETOL)[1]<-"Tuotantosuunta"
-  
-  ETTL<-read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
-                   sheet = "Kasvit_ETTL_koodeittain")  
-  colnames(ETTL)[3]<-"Kasvikoodi"
-  #ETOL
-  Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, ETOL, by = "Tuotantosuunta") 
-  Cropland_korotettu_elop_raivio<-inner_join(Cropland_korotettu_elop_raivio, ETOL, by = "Tuotantosuunta")
-  Cropland_korotettu_mineraalimaa<-inner_join(Cropland_korotettu_mineraalimaa, ETOL, by = "Tuotantosuunta")
-  Cropland_korotettu_mineraalimaa_raivio<-inner_join(Cropland_korotettu_mineraalimaa_raivio, ETOL, by = "Tuotantosuunta")
-  
-  Grassland_korotettu_elop<-inner_join(Grassland_korotettu_elop, ETOL, by = "Tuotantosuunta") 
-  Grassland_korotettu_elop_raivio<-inner_join(Grassland_korotettu_elop_raivio, ETOL, by = "Tuotantosuunta")
-  Grassland_korotettu_mineraalimaa<-inner_join(Grassland_korotettu_mineraalimaa, ETOL, by = "Tuotantosuunta")
-  Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraalimaa_raivio, ETOL, by = "Tuotantosuunta")
-  
+                                                                                                       Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                       Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                       Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                       Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                       Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                       Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                       Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                       .default = Tuotantosuunta))
+
+Cropland_korotettu_mineraalimaa_raivio<-Cropland_korotettu_mineraalimaa_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                                     Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                                     Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                                     Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                                     Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                                     Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                                     Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                                     Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                                     .default = Tuotantosuunta))
+
+Grassland_korotettu_elop<-Grassland_korotettu_elop %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                         .default = Tuotantosuunta))
+
+Grassland_korotettu_elop_raivio<-Grassland_korotettu_elop_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                       Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                       Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                       Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                       Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                       Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                       Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                       Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                       .default = Tuotantosuunta))
+Grassland_korotettu_mineraalimaa<- Grassland_korotettu_mineraalimaa %>%  mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                           Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                           Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                           Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                           Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                           Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                           Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                           Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                           .default = Tuotantosuunta))
+
+Grassland_korotettu_mineraalimaa_raivio <- Grassland_korotettu_mineraalimaa_raivio %>% mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                                                                         Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                                                                         Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                                                                         Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                                                                         Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                                                                         Tuotantosuunta == "Tattari ja kinoa" ~ "Tattari_kinoa",
+                                                                                                                         Tuotantosuunta == "Vihannekset ja juurekset" ~ "Vihannekset_juurekset",
+                                                                                                                         Tuotantosuunta == "Viljat pl. ohra" ~ "Viljat_pl_ohra",
+                                                                                                                         .default = Tuotantosuunta))
+
+
+
+#ETOL ja ETTL-koodit kiinni ####
+
+ETOL<-read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                 sheet = "Tuotantosuunnat ryhmittäin")
+colnames(ETOL)[1]<-"Tuotantosuunta"
+
+#Tänne kohdistetaan tarkennuksia: kesannot, avokesannot, niityt/luonnonlaitumet, peltolaitumet, kukin omaksi ettl-tuotteekseen, irti Muu peltoala-tuotteen alta. Muutokset suoraan avaimeen.  
+ETTL<-read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                 sheet = "Kasvit_ETTL_BD")  
+colnames(ETTL)[3]<-"Kasvikoodi"
+#Poistetaan muuttuja "Soveltuva Bd-kerroin". Se toimii tapana tunnistaa ylläolevat muutoskohteet excelissä, mutta tässä sitä ei tarvita 2 kertaa. 
+ETTL<-ETTL %>% select(-Soveltuva_biodiv_kerroin)
+
+#ETOL
+Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, ETOL, by = "Tuotantosuunta") 
+Cropland_korotettu_elop_raivio<-inner_join(Cropland_korotettu_elop_raivio, ETOL, by = "Tuotantosuunta")
+Cropland_korotettu_mineraalimaa<-inner_join(Cropland_korotettu_mineraalimaa, ETOL, by = "Tuotantosuunta")
+Cropland_korotettu_mineraalimaa_raivio<-inner_join(Cropland_korotettu_mineraalimaa_raivio, ETOL, by = "Tuotantosuunta")
+
+Grassland_korotettu_elop<-inner_join(Grassland_korotettu_elop, ETOL, by = "Tuotantosuunta") 
+Grassland_korotettu_elop_raivio<-inner_join(Grassland_korotettu_elop_raivio, ETOL, by = "Tuotantosuunta")
+Grassland_korotettu_mineraalimaa<-inner_join(Grassland_korotettu_mineraalimaa, ETOL, by = "Tuotantosuunta")
+Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraalimaa_raivio, ETOL, by = "Tuotantosuunta")
+
 #ETTL
 Cropland_korotettu_elop<-inner_join(Cropland_korotettu_elop, ETTL, by = "Kasvikoodi") 
 Cropland_korotettu_elop_raivio<-inner_join(Cropland_korotettu_elop_raivio, ETTL, by = "Kasvikoodi")
@@ -188,6 +189,11 @@ Grassland_korotettu_elop<-inner_join(Grassland_korotettu_elop, ETTL, by = "Kasvi
 Grassland_korotettu_elop_raivio<-inner_join(Grassland_korotettu_elop_raivio, ETTL, by = "Kasvikoodi")
 Grassland_korotettu_mineraalimaa<-inner_join(Grassland_korotettu_mineraalimaa, ETTL, by = "Kasvikoodi")
 Grassland_korotettu_mineraalimaa_raivio<-inner_join(Grassland_korotettu_mineraalimaa_raivio, ETTL, by = "Kasvikoodi")
+
+a<-sum(Cropland_korotettu_elop$Eloperaista)+sum(Cropland_korotettu_elop_raivio$Eloperaista)+sum(Cropland_korotettu_mineraalimaa$Mineraalia)+sum(Cropland_korotettu_mineraalimaa_raivio$Mineraalia)
+b<-sum(Grassland_korotettu_elop$Eloperaista)+sum(Grassland_korotettu_elop_raivio$Eloperaista)+sum(Grassland_korotettu_mineraalimaa$Mineraalia)+sum(Grassland_korotettu_mineraalimaa_raivio$Mineraalia)
+
+a+b
 
 #Aggregoidaan ettl ja etol luokkien ja biodiv. kertoimen mukaisesti 
 
@@ -290,6 +296,7 @@ if(round(sum(a,b),0) != 2329482) {
 
 
 #Kiinnitetään BD-kerroin
+#Nämä ovat kasvikoodi, ei ettl-kohtaisia. Niiden perusteella toteutetaan painotus kokonaisviljelyalalla ettl-tasolle. 
 
 library(readxl)
 BD_kertoimet <- read_excel(here("Data/Biodiversiteettikertoimet.xlsx"))

@@ -3,7 +3,7 @@ source_lines <- function(file, lines){
 }
 
 library(here)
-c
+
 source_lines(here("Skriptit/Uudet skriptit/GTK_datan_aggregointi.R"), 1:263 )
 
 
@@ -48,4 +48,4 @@ addWorksheet(Lukumaarat, "Tuotantosuunta_orig")
 addWorksheet(Lukumaarat, "Tuotantosuunta_ETOL")
 writeData(Lukumaarat, "Tuotantosuunta_orig", y)
 writeData(Lukumaarat, "Tuotantosuunta_ETOL", z)
-saveWorkbook(Lukumaarat, file=here("Output/AreaAggregates/Tilalukumaarat_gtk.xlsx"))
+saveWorkbook(Lukumaarat, file=here("Output/AreaAggregates/Tilalukumaarat_gtk.xlsx"),overwrite = T)

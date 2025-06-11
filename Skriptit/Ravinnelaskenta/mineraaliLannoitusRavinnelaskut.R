@@ -188,7 +188,8 @@ Lohkoittainen_min_lann_typpi_kasvitilat<-kasvitilalohkot %>% mutate(Mineraalilan
 Lohkoittainen_min_lann_typpi_elaintilat<-elaintilalohkot %>% mutate(Mineraalilannoitteen_typpi = typpikerroin_kg_ha*Maannossumma,
                                                                     Mineraalilannoitteen_typpi_eloper_maa = typpikerroin_org_maa_kg_ha*Eloperaista) 
 
-#Vastaa suunnilleen karin kertoimista laskettua totaalia n. 171 000 tn. 
+#Vastaa suunnilleen karin kertoimista kasveja kohti laskettua totaalia n. 171 000 tn. Ero johtuu siitä, että tämä arvo lasketaan erikseen kasvinviljely- ja eläintilojen
+#kasveille. Karin alkuperäisessä taulussa tilatyppi ja esim. niiden kesken vaihteleva min/org jakauma ei vaikuta. 
 sum(Lohkoittainen_min_lann_typpi_elaintilat$Mineraalilannoitteen_typpi)/1000+sum(Lohkoittainen_min_lann_typpi_kasvitilat$Mineraalilannoitteen_typpi)/1000
 
 

@@ -2,7 +2,7 @@
 
 #GTK-viljelyaladatan muuntaminen envimat-koodeille (ETTL ja ETOL)
 
-library(tidyverse);library(here);library(stringr);
+library(tidyverse);library(here);library(stringr);library(varhandle)
 
 source(here("Skriptit/Uudet skriptit/GTK_datan_aggregointi.R"))
 
@@ -182,4 +182,4 @@ writeData(Alat, "Eloperainen_raivattu", GTK_aggregointi_elop_raiviot)
 addWorksheet(Alat, "Mineraali_raivattu")
 writeData(Alat, "Mineraali_raivattu", GTK_aggregointi_mineral_raiviot)
 
-saveWorkbook(Alat, file=here("Output/AreaAggregates/Viljelyalat_gtk_ettl_etol_060225.xlsx"),overwrite = T)
+saveWorkbook(Alat, file=here("Output/AreaAggregates/Viljelyalat_gtk_ettl_etol_040625.xlsx"),overwrite = T)

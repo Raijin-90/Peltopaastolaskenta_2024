@@ -1,8 +1,7 @@
 library(tidyverse);library(here);library(usefun)
 
 #Viljelyalojen laskenta
-source(here("Skriptit/Biodiversiteettilaskenta/GTK_ala_biodiversiteettiluokittain_ettl.R"))
-
+source(here("Skriptit/Biodiversiteettilaskenta//GTK_ala_biodiversiteettiluokittain_ettl.R"))
 
 #Taiton testaus
 #16 tibbleä samaan listaan
@@ -29,21 +28,21 @@ Data_list<-list(
 
 
 #nimetään listaelementit lyhyemmin: ei tarvise jättää cropland-grassland-perennial-annual - jakoa kenttiin, se tiedetään jo nimestä 
-names(Data_list)<-c("GrassPerMinRaiv",
-                    "GrassAnnMinRaiv",
-                    "CropPerMinRaiv",
+names(Data_list)<-c("GrassPerMin_clear",
+                    "GrassAnnMin_clear",
+                    "CropPerMin_clear",
                     "GrassPerOrg",
                     "CropPerOrg",
                     "GrassAnnOrg",
                     "CropPerMin",
                     "CropAnnMin",
-                    "CropAnnOrgRaiv",
-                    "CropAnnMinRaiv",
+                    "CropAnnOrg_clear",
+                    "CropAnnMin_clear",
                     "GrassPerMin",
-                    "CropPerOrgRaiv",
+                    "CropPerOrg_clear",
                     "GrassAnnMin",
-                    "GrassPerOrgRaiv",
-                    "GrassAnnOrgRaiv",
+                    "GrassPerOrg_clear",
+                    "GrassAnnOrg_clear",
                     "CropAnnOrg")  
                     
                     
@@ -62,13 +61,14 @@ Aggregointifunktio<-function(x){
  x %>% group_by(ETOL_koodi,ETTL) %>% summarise_at(.vars = names(.)[8] , sum) 
 }
 
+
 Data_list<-map(Data_list,Aggregointifunktio)  
 
 rm(Aggregointifunktio)
 
 #Puuttuvien sarakkeiden lisäys
 
-#Luodaan funktio, joka muuttaa x:n kolumnin nr. 8 nimeksi "Hehtaaria" ja kääntää pitkän muodon. 
+#Luodaan funktio, joka muuttaa x:n kolumnin 3 nimeksi "Hehtaaria" ja kääntää pitkän muodon. 
 
 #' Custom Function
 #'
@@ -132,7 +132,7 @@ Kaikki_etolkoodit<-c(
 
 #Ne etol-koodit jotka datassa on. x  
 
-Datan_etolit<-colnames(Data_list[[1]][3:length(Data_list[[1]])])
+Datan_etolit<-colnames(Data_list[[1]][2:length(Data_list[[1]])])
 
 #Datan koodien ja täyden etol listan erotus. Nämä eivät vaihtele kategorioittain. 
 Lisattavat<-outersect(Datan_etolit, Kaikki_etolkoodit)
@@ -328,7 +328,13 @@ Taydennettavat_tuotteet<-c("011111",
 "012920",
 "012930",
 "013010",
-"Muu")
+"Kesanto (≥ 8 v.)",
+"Niitty / luonnonlaidun",
+"Muu",
+"Avokesanto",
+"Peltolaidun")
+
+
 
 #Tätä pitää verrata jokaisen listaelementin tuotteisiin, katsoa mitä puuttuu, ja täydentää rivit. Jokaisesta puuttuu eri asiat. 
 Listat<-seq_along(1:length(Data_list)) #looppivektori, numerot 1-16. Vastaa listojen lukumäärää datassa
@@ -483,9 +489,7 @@ Combined_list<-map(Combined_list, Rivisorttaus)
 rm.all.but(c("Combined_list", "Listat"), keep_functions = FALSE)
 
 
-
-
-
+write.xlsx(Combined_list, file=here(here("Output/AreaAggregates/Peltofood_ei_tasokorotusta_BDmuutos.xlsx")))
 
 
               

@@ -7,21 +7,15 @@
 
 library(varhandle);library(tidyverse);library(here)
 
-
+#Bd-luokat
 library(readxl)
-Biodiversiteettiluokat_kasveille <- read_excel("Data/Biodiversiteettiluokat_kasveille.xlsx", 
-                                               col_types = c("numeric", "text", "skip", 
-                                                             "text"))
+Biodiversiteettiluokat_kasveille <- read_excel("Data/Biodiversiteettiluokat_kasveille.xlsx")
 
-
+#Tuotejako
+#Käytetään 04062025 modifioitua tuotejakoa BD-laskentaan. Kesannot omana tuotteenaan, eivät enää osana Muuta peltoalaa. 
 library(readxl)
-Muuntoavain_tuotantosuunnat_tuotteet_ETOL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
-                                                        sheet = "Kasvit_ETTL_koodeittain")
-
-
-library(readxl)
-Muuntoavain_tuotantosuunnat_tuotteet_ETOL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
-                                                        sheet = "Kasvit_ETTL_koodeittain")
+ETTL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", 
+                                                        sheet = "Kasvit_ETTL_biodivers")
 
 
 #' Source specific lines in an R file
@@ -35,9 +29,7 @@ source_lines <- function(file, lines){
 
 #kokonaisviljelyalan luonti
 
-source_lines(here("Skriptit/Uudet skriptit/GTk_datan_aggregointi.R"),1:260)
-
-rm.all.but(c("GTKdata","Biodiversiteettiluokat_kasveille"))
+source_lines(here("Skriptit/Uudet skriptit/GTK_datan_aggregointi.R"),1:260)
 
 Kokonaisala<-GTKdata %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Kokonaisviljelyala = sum(Maannossumma))
 
@@ -47,19 +39,19 @@ colnames(Biodiversiteettiluokat_kasveille)[1]<-"KASVIKOODI_lohkodata_reclass"
 
 Aineisto<-left_join(Kokonaisala, Biodiversiteettiluokat_kasveille, by="KASVIKOODI_lohkodata_reclass")
 
-#ETTL-koodien yhdistäminen
-
-library(readxl)
-Muuntoavain_tuotantosuunnat_tuotteet_ETOL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx", sheet = "Kasvit_ETTL_koodeittain")
-colnames(Muuntoavain_tuotantosuunnat_tuotteet_ETOL)[colnames(Muuntoavain_tuotantosuunnat_tuotteet_ETOL)=="Ruokaviraston koodi"]<-"KASVIKOODI_lohkodata_reclass"
-
-Aineisto<-left_join(Aineisto, Muuntoavain_tuotantosuunnat_tuotteet_ETOL, by="KASVIKOODI_lohkodata_reclass")
 
 #BD-kerrointen numeroarvojen liitto
 
 Biodiversiteettikertoimet <- read_excel("Data/Biodiversiteettikertoimet.xlsx")
 
 Aineisto<-left_join(Aineisto, Biodiversiteettikertoimet, by="Soveltuva_biodiv_kerroin")
+
+
+#ETTL tuotenimet
+
+colnames(ETTL)[3]<-"KASVIKOODI_lohkodata_reclass"
+Aineisto<-left_join(Aineisto, ETTL, by=c("KASVIKOODI_lohkodata_reclass"))
+
 
 #Toistuvia muuttujia pois
 
@@ -76,7 +68,6 @@ Aineisto<-Aineisto %>% mutate(div_x_pinta_ala = Skaalattu_kokonaisdiversiteetti 
 
 Viljelyalasummat <- Aineisto %>% group_by(ETTL, `ETTL Nimike`) %>% summarise(ETTL_kokonaisalaviljelyala = sum(Kokonaisviljelyala))
 
-rm.all.but(c("Aineisto", "Viljelyalasummat"))
 
 Kerroinsummat <-Aineisto %>% group_by(ETTL, `ETTL Nimike`) %>% summarise(div_x_pinta_ala_tulosumma = sum(div_x_pinta_ala))
 
@@ -98,4 +89,8 @@ painotetutKertoimet<-left_join(painotetutKertoimet, Lajimaarat, by=c("ETTL", "ET
 painotetutBDkertoimet<-createWorkbook()
 addWorksheet(painotetutBDkertoimet,"painotetutKertoimet")
 writeData(painotetutBDkertoimet,"painotetutKertoimet", painotetutKertoimet)
-saveWorkbook(painotetutBDkertoimet,here("Data/Kokonaisviljelyalalla_painotetut_BD_kertoimet.xlsx"))
+saveWorkbook(painotetutBDkertoimet,here("Data/Kokonaisviljelyalalla_painotetut_BD_kertoimet.xlsx"), overwrite = T)
+
+print("BD-kertoimet painotettua")
+
+rm.all.but("painotetutKertoimet")
