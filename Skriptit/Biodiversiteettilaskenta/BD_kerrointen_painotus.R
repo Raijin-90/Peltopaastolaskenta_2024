@@ -56,7 +56,7 @@ Aineisto<-left_join(Aineisto, ETTL, by=c("KASVIKOODI_lohkodata_reclass"))
 #Toistuvia muuttujia pois
 
 Aineisto<-Aineisto %>% select(-Kasvi, -Biodiversiteettiluokitus_original, -Diversiteettikerroin, -`Ruokaviraston nimi`, -Soveltuva_biodiv_kerroin.x)
-
+colnames(Aineisto)[colnames(Aineisto)=="Soveltuva_biodiv_kerroin.y"]<-"Soveltuva_biodiv_kerroin"
 
 #Viljelyalapainotettu diversiteettikerroin 
 
