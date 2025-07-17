@@ -565,4 +565,4 @@ for (i in seq_along(Listat)){
 }
 
 
-write.xlsx(Viljely_piennar_erikseen, file=here(here("Output/AreaAggregates/Peltofood_piennar_erilleen.xlsx")))
+write.xlsx(Viljely_piennar_erikseen, file=here("Output/AreaAggregates/Peltofood_piennar_erilleen.xlsx"), rowNames=T)
