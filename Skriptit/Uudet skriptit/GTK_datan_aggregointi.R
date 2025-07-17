@@ -262,9 +262,16 @@ GTKdata<-GTKdata %>% mutate(Mineraaliprosentti = (Mineraalia/Maannossumma)*100,
 z<-unique(GTKdata$PLTUNNUS)
 
 
+#Laskentaan lohkokohtainen piennarpinta-ala. 
+#Perustuu Marjaana Toivosen arvioon, jonka mukaan suomessa n. 40 000 ha biodiversiteetiltään korkeaa pellonpiennarta. 
+#Kun tämä jaetaan yhteenlasketulle ~ 2.32 milj. peltohehtaarille, saadaan piennarta per peltohehtaari-kerroin. 
+#Ja tätä kerrointa käyttäen edelleen pientareen osuus yksittäistä lohkoa.
 
+#Pientareiden määrä on relevantti biodiversiteettivaikutusten laskennassa. 
 
+Piennarkerroin <- 40000/sum(GTKdata$Maannossumma)
 
+GTKdata<-GTKdata %>% mutate(Piennarhehtaarit = Maannossumma*Piennarkerroin)
 
 
 #Pinta-alojen aggregointi ####

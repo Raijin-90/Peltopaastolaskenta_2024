@@ -491,5 +491,78 @@ rm.all.but(c("Combined_list", "Listat"), keep_functions = FALSE)
 
 write.xlsx(Combined_list, file=here(here("Output/AreaAggregates/Peltofood_ei_tasokorotusta_BDmuutos.xlsx")))
 
+#Lisäys: pientareen määrän laskeminen
+#Pientareen kerroin (ha piennarta per ha peltoa) lasketaan jakamalla arvioitu pientareen määrä 40 000 ha yhteenlasketulla datan viljelyalalla 2 329 482 ha. Jälkimmäinen luku
+#on peltolohkoaineiston yhteenlaskettu viljelyala. 40 000 ha piennarta on Marjaana Toivosen arvio pientareen kokonaisalasta. 
 
-              
+Piennarkerroin <- 40000/2329482
+
+#Lasketaan pientareen ala kustakin viljelyalataulusta kertomalla solun arvot piennarkertoimella. 
+#ETTL muuttujasta rivinimeksi jotta kaikki muuttujat numeroita 
+
+for (i in seq_along(Listat)) {
+  
+  rownames(Combined_list[[i]])<-Combined_list[[i]][[1]]
+  Combined_list[[i]][[1]]<-NULL
+}
+
+Piennarfunktio<-function(x){x*Piennarkerroin}
+
+Piennaralat<-map(Combined_list,\(x) Piennarfunktio(x)) 
+
+#Vähennetään laskettu pientareiden ala alkuperäisistä listojen arvoista. 
+#Näin saadaan erikseen viljelty ala, jolla matalampi BD, ja piennar jolla se on korkeampi.
+
+Viljely_ei_piennarta<-list()
+
+for (i in seq_along(Listat)) {
+
+Viljely_ei_piennarta[[i]]<- Combined_list[[i]]-Piennaralat[[i]] 
+  
+}
+
+names(Viljely_ei_piennarta)<-names(Combined_list)
+
+#Transponoidaan viljelyalat ja piennaralat siten, että tuotteet siirtyvät riveiltä sarakkeille, ja tuotantosuunnat riveille. Mallin sisäänotossa tämä tulisi joka tapauksessa tehdä. 
+
+for (i in seq_along(Listat)) {
+  
+  Viljely_ei_piennarta[[i]]<- t(Viljely_ei_piennarta[[i]]) 
+  
+}
+
+for (i in seq_along(Listat)) {
+  
+  Piennaralat[[i]]<- t(Piennaralat[[i]]) 
+  
+}
+
+#Lasketaan piennaraloista tuotantosuuntakohtainen rivisumma
+
+Piennarsummat<-list()
+
+for (i in seq_along(Listat)) {
+  
+  Piennarsummat[[i]]<- rowSums(Piennaralat[[i]]) 
+  
+}
+
+#Yhdistetään piennarten rivisummat viljeltyyn alaan. Tällöin piennar on oma tuotesarake, mutta ei ole enää mukana viljellyssä alassa itsessään (niillä on eri bd-kerroin)
+
+Viljely_piennar_erikseen<-list()
+
+for (i in seq_along(Listat)) {
+  
+  Viljely_piennar_erikseen[[i]]<- cbind(Viljely_ei_piennarta[[i]], Piennarsummat[[i]]) 
+  
+}
+names(Viljely_piennar_erikseen)<-names(Combined_list)
+
+#Lisätyille sarakkeille nimeksi "Pientare"
+
+for (i in seq_along(Listat)){
+  colnames(Viljely_piennar_erikseen[[i]])[173] <- "Pientare"
+}
+
+
+write.xlsx(Viljely_piennar_erikseen, file=here(here("Output/AreaAggregates/Peltofood_piennar_erilleen.xlsx")))
