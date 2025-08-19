@@ -56,8 +56,7 @@ Elaintilat<-c("Maitotilat",
 
 Elaintiladata<-Data %>% filter(ETOL %in% Elaintilat)
 
-#Plukukeskiarvon ja lantafosfori-per-ha kertoimen välinen korrelaatio 
+#Tiloittaisen plukukeskiarvon ja lantafosfori-per-ha kertoimen välinen korrelaatio 
 
+cor.test(Elaintiladata$Lantafosfori_kg_per_ha, Elaintiladata$Pluku_keskiarvo)
 
-
-Data %>% filter(ETOL %in% c(""))

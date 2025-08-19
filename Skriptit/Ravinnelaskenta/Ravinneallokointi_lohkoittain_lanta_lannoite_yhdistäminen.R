@@ -45,7 +45,9 @@ Lantasumma_N2Ohaviolla<-sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavik
 Kaikki_lohkot<-rbind(lohkot_luomuviljelyssä, tavanomaisen_viljelyn_lohkot)
 sum(Kaikki_lohkot$Maannossumma)
 
-alat<-Kaikki_lohkot %>% group_by(Tuotantosuunta) %>% summarise(viljelyala=sum(Maannossumma))
+alat<-Kaikki_lohkot %>% group_by(Tuotantosuunta) %>% summarise(viljelyala=sum(Maannossumma)) 
+#Jos lannan levitysmäärä kesannoille ym.Muu peltoala-kasvityypeille joilla myöskään mineraalilannoitusta ei ole (kerroin = 0), 
+#se suodatus on tehtävä ylläoleviin aloihin. 
 
 Lannan_ravinnelaskenta<-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosuunta")
 
@@ -223,3 +225,24 @@ Mineraalilannoite, by=c("Tuotantosuunta","KASVIKOODI_lohkodata_reclass"))
 
 
 write.xlsx(Liitos, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset.xlsx"),overwrite = T)
+
+
+#Bonari: samasta viljelyaladatasta (lohkot_kaikki) saadaan satomäärät ja suhteutus ravinteiden käyttö per sato
+#Tämä ei onnistu kuin niille kasveille, joille ylipäänsä on satotieto. 
+
+library(readxl)
+Satokertoimet <- read_excel("Data/Satokertoimet.xlsx")
+colnames(Satokertoimet)[1]<-"KASVIKOODI_lohkodata_reclass"
+Satokertoimet$KASVIKOODI_lohkodata_reclass<-as.double(Satokertoimet$KASVIKOODI_lohkodata_reclass)
+
+Lohkot_sato<-left_join(lohkot_kaikki, Satokertoimet, by="KASVIKOODI_lohkodata_reclass")
+
+Lohkot_sato_aggre<-Lohkot_sato %>% 
+  filter(!is.na(Hehtaarisato_tonnia_ha)) %>% 
+  mutate(Satotonnit = Maannossumma*Hehtaarisato_tonnia_ha) %>%
+  group_by(KASVINIMI_reclass,KASVIKOODI_lohkodata_reclass) %>% summarise(Satotonnit = sum(Satotonnit))
+
+Satotonnitaulukko<-createWorkbook()
+addWorksheet(Satotonnitaulukko,"Sadot")
+writeData(Satotonnitaulukko, "Sadot", Lohkot_sato_aggre)
+saveWorkbook(Satotonnitaulukko, file=here("Output/Ravinnedata/Sadot.xlsx"), overwrite = T)
