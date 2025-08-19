@@ -1,3 +1,12 @@
+
+#HUOMIO!
+#Skripti on tietyiltä osin vanhentunut eikä sitä tule käyttää. 
+#Sisällöltään sama, tietyin korjauksin täydennetty skripti on: 
+#D:/Peltopaastolaskenta_2024/Peltopaastolaskenta_2024/Skriptit/Ravinnelaskenta/P_lukutarkastelu_turkiskunnille_fosforiallokointi.R
+
+#Täydennykset koskevat turkiskuntien ylimäärä-Plukujen kohdentamista josta ao. skriptin kommenteissa. 
+
+library(openxlsx)
 #Ravinnepäästöjen laskentaskripti 
 #09042025 HV
 
@@ -105,5 +114,5 @@ writeData(Output, "ETOL&ETTL", d)
 
 saveWorkbook(Output, here("Output/Ravinnedata/Emissiotulokset/Fosforin_jako_peltolohkoille.xlsx"), overwrite = T)
 
-
+#
 

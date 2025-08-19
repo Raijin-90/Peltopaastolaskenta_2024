@@ -19,7 +19,7 @@ source_lines <- function(file, lines){
 
 #Mineraalilannoite: ei koske luomulohkoja. Mineraalilannoituksen skriptissä tehdään  jaottelu luomuun ja normaaliin.
 #Lisäksi skripti laskee mineraalilannoitteiden käytön typpikuorman kg per lohko, käyttäen kasvikohtaisia kertoimia jotka lasketaan erikseen 
-#eläin- ja kasvitiloille. 
+#eläin- ja kasvitiloille. Saadaan siis kaksi erillistä kerrointa. 
 
 source(here("Skriptit/Ravinnelaskenta/mineraaliLannoitusRavinnelaskut.R"))
 
@@ -31,10 +31,15 @@ sum(Lohkoittainen_min_lann_typpi_elaintilat$Maannossumma)+sum(Lohkoittainen_min_
 #LANNAN RAVINTEET
 
 #Lannan ravinteet. Tätä käytetään sekä luomu- että "normaaleilla" lohkoilla
-#Ravinnekilot laskettu excelissä, otetaan sisään. 
+#Ravinnekilot laskettu excelissä, otetaan sisään. Näissä arvoissa on mukana N20:n hävikki, mutta ei vielä NO:n vastaavaa. 
 
-Lannan_ravinnelaskenta <- read_excel("Data/Ravinnelaskennan_aineisto/Lannan_ravinnelaskenta.xlsx", sheet = "Jako viljelyaloille", range = "A1:F27") 
-Lannan_ravinnelaskenta<-Lannan_ravinnelaskenta %>% select(Tuotantosuunta, `Lannan typpi kg`)
+Lannan_ravinnelaskenta <- read_excel("Data/Ravinnelaskennan_aineisto/Lannan_ravinnelaskenta.xlsx", sheet = "Jako viljelyaloille", range = "A1:I27") 
+
+Lantatyppi_ei_hävikkiä<-sum(Lannan_ravinnelaskenta$`Lannan typpi kg`)
+
+Lannan_ravinnelaskenta<-Lannan_ravinnelaskenta %>% select(Tuotantosuunta,Lannan_typpi_N2O_levityshavikki_huomioitu_kg)
+
+Lantasumma_N2Ohaviolla<-sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavikki_huomioitu_kg)
 
 #Jaetaan ravinnekilot tuotantosuunnittain viljelyalalle, tuloksena joka tuotantosuunnalle oma kasvista riippumaton kerroin kg typpeä/ha. 
 Kaikki_lohkot<-rbind(lohkot_luomuviljelyssä, tavanomaisen_viljelyn_lohkot)
@@ -44,20 +49,23 @@ alat<-Kaikki_lohkot %>% group_by(Tuotantosuunta) %>% summarise(viljelyala=sum(Ma
 
 Lannan_ravinnelaskenta<-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosuunta")
 
-sum(Lannan_ravinnelaskenta$`Lannan typpi kg`)
+sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavikki_huomioitu_kg)
 sum(Lannan_ravinnelaskenta$viljelyala)
 
 #Typpikerroin: kg typpea/ha kokonaisalaa kullekin tuotantosuunnalle.                                    
-Lantakertoimet<-Lannan_ravinnelaskenta %>% mutate(Lannan_typpi_kg_ha = `Lannan typpi kg`/viljelyala) %>% select(Tuotantosuunta, Lannan_typpi_kg_ha) 
+Lantakertoimet<-Lannan_ravinnelaskenta %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_N2O_levityshavikki_huomioitu_kg/viljelyala) %>% select(Tuotantosuunta, Lannan_typpi_kg_ha) 
 rm(Lannan_ravinnelaskenta)
 
 #Normilanta-järjestelmä huomioi varastoinnin typenhävikin vaan ei levityksessä aiheutuvaa.
-#Dokumentaation mukaan 1.2% kokonaistypestä häviää ilmapäästöinä. 
+#Dokumentaation mukaan 1.2% kokonaistypestä häviää typpioksidin (NO) ilmapäästöinä. 
 #Pudotetaan kutakin kerrointa tämän verran. 
 
 Lantakertoimet<-Lantakertoimet %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_kg_ha*0.988)
 
-
+#Lisäksi N2O:na häviää levitetystä lannasta n. 1,19 kilotonnia N2O, joka vastaa n.  723 tn typpeä. 
+#Perustuu CRF 3C "N input from manure applied to soils" arvoon. 
+#Tämä otetaan huomioon excelissä. N2O kilotonneista on laskettu
+#typen osuus siinä. Jaettavaa lannan totaalia vähennetään tämä määrä.   
 
 
 
@@ -90,7 +98,13 @@ Tavallinen_viljely_ravinteet<-rbind(Elaintilalohkot_ravinnekertoimet_tavallinen,
 
 rm(Elaintilalohkot_ravinnekertoimet_tavallinen, Kasvitilalohkot_ravinnekertoimet_tavallinen)
 
-sum(Luomulohkot_ravinnekertoimet$typpi_lannasta_kg)+sum(Tavallinen_viljely_ravinteet$typpi_lannasta_kg) #76 282 552 kg on toivottu lantatypen totaali
+sum(Luomulohkot_ravinnekertoimet$typpi_lannasta_kg)+sum(Tavallinen_viljely_ravinteet$typpi_lannasta_kg) #76 282 552 kg on toivottu lantatypen totaali JOS HÄVIKKIÄ EI HUOMIOIDA.
+
+Lantasumma_NO_N2O_havikit_poistettu<-sum(sum(Luomulohkot_ravinnekertoimet$typpi_lannasta_kg)+sum(Tavallinen_viljely_ravinteet$typpi_lannasta_kg))
+Havikki_yhteensa<-Lantatyppi_ei_hävikkiä-Lantasumma_NO_N2O_havikit_poistettu
+
+
+
 
 #Luomulohkot-aliaineistoon ei tule ollenkaan mineraalilannoitteita. Niille tarvitaan kuitenkin dummymuuttujat datan kokoamista varten
 
@@ -112,12 +126,14 @@ rm.all.but("lohkot_kaikki")
 
 #TYPEN TARPEEN KATTAMINEN LANNALLA KOTIELÄINTILOILLA
 
-#Mineraalilannoitteiden tarjonnan ja käytön erotus, joka katetaan mineraalilannoitteilla. 
-#Typen tarjonta on laskettu Yatran tuotantotiedoista mikrodatan pohjalta Exceliin. 
-#Mineraalilannoitteiden typen käyttö on laskettu Karin kertoimien pohjalta tähän dataan.  
+#Mineraalilannoitteiden tarjonnan ja käytön erotus, joka katetaan lannalla 
+#Typen tarjonta (1 589 01000 kg eli 158901 tn) on laskettu Yaran tuotantotiedoista (YLVA) Exceliin.
+#Sisältää NPK-lannoitteen sekä spesifin typpilannoitteen (pieni virta)
+#https://sykeintra.sharepoint.com/sites/msteams_8cb833_427324/Shared%20Documents/ENVIMATfood/K%C3%A4sikirjoitus_maatalouden_ravinnep%C3%A4%C3%A4st%C3%B6t/Typpi/Typpilannoitus_lannan_typpi.xlsx?web=1
+#Mineraalilannoitteiden typen käyttö on laskettu Karin kertoimien pohjalta nyt R:ssä käsiteltävään dataan.  
 #Erotus n. 13 000 tn
 
-Lannalla_katettava<-(sum(lohkot_kaikki$Mineraalilannoitteen_typpi)- 158901000)
+Lannalla_katettava<-(sum(lohkot_kaikki$Mineraalilannoitteen_typpi)- 158901000) #KILOJA!
 Lannalla_katettava/1000 #tonnit
 
 x<-lohkot_kaikki %>% group_by(Tuotantosuunta, KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Lannan_typpi_kg= sum(typpi_lannasta_kg), 
@@ -200,10 +216,10 @@ rm.all.but(c("Mineraalilannoite","lohkot_kaikki"))
 
 lantatyppi<-lohkot_kaikki %>% group_by(Tuotantosuunta, KASVIKOODI_lohkodata_reclass) %>% summarise(Lannan_typpi_kg = sum(typpi_lannasta_kg))
 
-#Yhdistetään mineraalilannoitteeseen. Lanta on jaettu sen generoiville tuotantosuunnille, joten tyä
+#Yhdistetään mineraalilannoitteeseen. Lanta on jaettu sen generoiville tuotantosuunnille
 
 Liitos<-inner_join(lantatyppi,
 Mineraalilannoite, by=c("Tuotantosuunta","KASVIKOODI_lohkodata_reclass"))
 
 
-write.xlsx(Liitos, file="Ennakot.xlsx")
+write.xlsx(Liitos, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset.xlsx"),overwrite = T)

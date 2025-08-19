@@ -59,7 +59,7 @@ write.xlsx(liitos, file=here("Output/Ravinnedata/P_lukuvertailu_turkiskunnat_muu
 #päästöjen laskenta vakioarvoista
 #Vakioarvoista laskettu, lohkokohtainen fosforikuorma
 
-source(here("Skriptit/Ravinnelaskenta/Ravinnelaskenta.R"))
+source(here("Skriptit/Ravinnelaskenta/Ravinnelaskenta_P_VANHA.R"))
 
 rm.all.but("lohkodataTrimmed")
 
@@ -119,7 +119,7 @@ lohkodataTrimmed_turkistilojen_muutokset<-rbind(Turkiskuntien_lohkot, Muiden_kun
 
 rm.all.but("lohkodataTrimmed_turkistilojen_muutokset")
 
-
+#Osa 3: 
 #Fosforin allokointi tehdään muilta osin samalla tavalla kuin skriptissä Ravinnelaskenta.R
 
 #Allokointi: 

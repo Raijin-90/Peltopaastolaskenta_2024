@@ -16,6 +16,8 @@ Ravinnekertoimet <- read_excel("Data/Ravinnelaskennan_aineisto/Lannan_ravinnelas
 Ravinnekertoimet<-filter(Ravinnekertoimet,complete.cases(Ravinnekertoimet))
 Ravinnekertoimet$Eläinluokan_nro<-as.character(Ravinnekertoimet$Eläinluokan_nro)
 
+
+
 Elaintyyppien_koodit <- read_excel("Data/Ravinnelaskennan_aineisto/Lannan_ravinnelaskenta.xlsx", 
                                sheet = "Eläintyyppien_koodit")
 Elaintyyppien_koodit$Eläinluokan_nro<-as.character(Elaintyyppien_koodit$Eläinluokan_nro)
@@ -106,4 +108,4 @@ writeData(Tuloskooste, "Lannan_ravinteet_tiloittain", Yhdistetty_data)
 addWorksheet(Tuloskooste, "Ei_peltolohkoissa")
 writeData(Tuloskooste, "Ei_peltolohkoissa", Vaje)
 
-saveWorkbook(Tuloskooste, here("Output/Ravinnedata/Lannan_ravinteet_tiloittain.xlsx"))
+saveWorkbook(Tuloskooste, here("Output/Ravinnedata/Lannan_ravinteet_tiloittain.xlsx"),overwrite = T)
