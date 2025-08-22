@@ -21,7 +21,7 @@ source_lines <- function(file, lines){
 #KERROINTEN LASKENTA
 #Kertoimet joilla lasketaan mineraalilannoitteiden käyttöä kasveille syntyvät skriptistä Lannoitteiden_ravinteet_kasvit_ts.R. Nämä ajetaan ensin
 
-source_lines(here("Skriptit/Ravinnelaskenta/Lannoitteiden_ravinteet_kasvit_ts.R"), 1:148)
+source(here("Skriptit/Ravinnelaskenta/Lannoitteiden_ravinteet_kasvit_ts.R"))
 rm.all.but(c("A","B","C"))
 
 #lannoitetypen tarve kasvilajeittain, sisältäen kaikki tuotantosuunnat. Luomualaa ei ole mukana, sitä ei lannoiteta kivennäisillä. 

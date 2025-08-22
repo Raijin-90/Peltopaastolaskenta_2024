@@ -80,8 +80,11 @@ aggreData<-left_join(aggreData, lannoitus, by=c("Kasvikoodi"))
 #Tältä pohjalta säädetään turvemaiden typpilannoituksen kerrointa. Sen suuruudeksi asetetaan kautta linjan 80% mineraalimaiden lannoituksesta kullekin kasville
 
 
+aggreData$`N kg/ha mineral soil`<-aggreData$`N kg/ha mineral soil` %>% replace_na(0) 
+aggreData$`N kg/ha organic soil`<-aggreData$`N kg/ha organic soil` %>% replace_na(0) 
 
-aggreData[is.na(aggreData)]<-0
+aggreData$`P kg /ha mineral soil`<-aggreData$`P kg /ha mineral soil` %>% replace_na(0) 
+aggreData$`P kg/ha orgainc soil`<-aggreData$`P kg/ha orgainc soil` %>% replace_na(0) 
 
 
 aggreData<-aggreData %>% mutate(`N kg/ha organic soil UUSI` = 0.8* `N kg/ha mineral soil`)

@@ -13,7 +13,6 @@ source_lines <- function(file, lines){
   source(textConnection(readLines(file)[lines]))
 }
 
-#Hävikit? Sisältyvätkö jo lantakertoimiin. Kysytty juha grönroosilta 19052025
 
 #MINERAALILANNOITUS: ERILLISESTÄ SKRIPTISTÄ. 
 
@@ -45,9 +44,46 @@ Lantasumma_N2Ohaviolla<-sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavik
 Kaikki_lohkot<-rbind(lohkot_luomuviljelyssä, tavanomaisen_viljelyn_lohkot)
 sum(Kaikki_lohkot$Maannossumma)
 
-alat<-Kaikki_lohkot %>% group_by(Tuotantosuunta) %>% summarise(viljelyala=sum(Maannossumma)) 
 #Jos lannan levitysmäärä kesannoille ym.Muu peltoala-kasvityypeille joilla myöskään mineraalilannoitusta ei ole (kerroin = 0), 
-#se suodatus on tehtävä ylläoleviin aloihin. 
+#se suodatus on tehtävä ylläoleviin aloihin. Lannan ravinnetonnit eivät muutu, koska pohjaavat eläinten määrään eikä pinta-alaan. 
+#Koskee oheisia kasvikoodeja, jotka eritelty Kasvilista_lannoitus.xlsx tiedostoon tunnisteella "Ei lannoiteta" = 1, ETTL "muu peltoala". 
+
+Ei_lantaa <-c(6050,
+6051,
+6220,
+6300,
+6600,
+6710,
+6720,
+9101,
+9102,
+9403,
+9404,
+9405,
+9412,
+9413,
+9422,
+9423,
+9424,
+9620,
+9700,
+9801,
+9802,
+9803,
+9804,
+9805,
+9806,
+9807,
+9808,
+9810,
+9811,
+9812,
+9820,
+9830)
+
+Kaikki_lohkot<-Kaikki_lohkot %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
+
+alat<-Kaikki_lohkot %>% group_by(Tuotantosuunta) %>% summarise(viljelyala=sum(Maannossumma)) 
 
 Lannan_ravinnelaskenta<-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosuunta")
 
@@ -76,13 +112,17 @@ Lantakertoimet<-Lantakertoimet %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_kg_h
 
 
 #Liitetään lohkoihin, sekä tavallisiin että luomu. 
+#Jos lantakertoimien laskennasta poistetaan suojakaistat ja muu lannoittamaton ala, sama on tehtävä näihin
 
+Lohkoittainen_min_lann_typpi_elaintilat<-Lohkoittainen_min_lann_typpi_elaintilat %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa))
 Elaintilalohkot_ravinnekertoimet_tavallinen<-inner_join(Lohkoittainen_min_lann_typpi_elaintilat,Lantakertoimet, by="Tuotantosuunta")
 rm(Lohkoittainen_min_lann_typpi_elaintilat)
 
+Lohkoittainen_min_lann_typpi_kasvitilat<-Lohkoittainen_min_lann_typpi_kasvitilat %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa))
 Kasvitilalohkot_ravinnekertoimet_tavallinen<-inner_join(Lohkoittainen_min_lann_typpi_kasvitilat,Lantakertoimet, by="Tuotantosuunta")
 rm(Lohkoittainen_min_lann_typpi_kasvitilat)
 
+lohkot_luomuviljelyssä <-lohkot_luomuviljelyssä %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
 Luomulohkot_ravinnekertoimet<-inner_join(lohkot_luomuviljelyssä, Lantakertoimet, by="Tuotantosuunta")
 rm(lohkot_luomuviljelyssä)
 
@@ -224,7 +264,7 @@ Liitos<-inner_join(lantatyppi,
 Mineraalilannoite, by=c("Tuotantosuunta","KASVIKOODI_lohkodata_reclass"))
 
 
-write.xlsx(Liitos, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset.xlsx"),overwrite = T)
+write.xlsx(Liitos, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset_Muu_peltoala_muutettuna.xlsx"),overwrite = T)
 
 
 #Bonari: samasta viljelyaladatasta (lohkot_kaikki) saadaan satomäärät ja suhteutus ravinteiden käyttö per sato
