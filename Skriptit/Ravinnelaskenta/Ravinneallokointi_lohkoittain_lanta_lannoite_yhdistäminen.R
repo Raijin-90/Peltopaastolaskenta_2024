@@ -13,7 +13,6 @@ source_lines <- function(file, lines){
   source(textConnection(readLines(file)[lines]))
 }
 
-
 #MINERAALILANNOITUS: ERILLISESTÄ SKRIPTISTÄ. 
 
 #Mineraalilannoite: ei koske luomulohkoja. Mineraalilannoituksen skriptissä tehdään  jaottelu luomuun ja normaaliin.
@@ -98,7 +97,6 @@ LH_summat_alat<-Luonnonhuuhtouma %>%  mutate(Luonnonhuuhtouman_typpi = Maannossu
                                                                                                   Luonnonhuuhtouman_typpi = sum(Luonnonhuuhtouman_typpi),
                                                                                                   Hehtaarit=sum(Maannossumma)) 
 
-
 #Jatketaan laskentaa
 
 #Poissuljetaan ne, joille lantaa ei laiteta
@@ -110,8 +108,6 @@ Lannan_ravinnelaskenta <-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosu
 
 sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavikki_huomioitu_kg)
 sum(Lannan_ravinnelaskenta$viljelyala)
-
-
 
 #Typpikerroin: kg typpea/ha kokonaisalaa kullekin tuotantosuunnalle.                                    
 Lantakertoimet<-Lannan_ravinnelaskenta %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_N2O_levityshavikki_huomioitu_kg/viljelyala) %>% select(Tuotantosuunta, Lannan_typpi_kg_ha) 
@@ -127,12 +123,6 @@ Lantakertoimet<-Lantakertoimet %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_kg_h
 #Perustuu CRF 3C "N input from manure applied to soils" arvoon. 
 #Tämä otetaan huomioon excelissä. N2O kilotonneista on laskettu
 #typen osuus siinä. Jaettavaa lannan totaalia vähennetään tämä määrä.   
-
-
-
-
-
-
 
 #Liitetään lohkoihin, sekä tavallisiin että luomu. 
 
@@ -167,9 +157,6 @@ sum(Luomulohkot_ravinnekertoimet$typpi_lannasta_kg)+sum(Tavallinen_viljely_ravin
 Lantasumma_NO_N2O_havikit_poistettu<-sum(sum(Luomulohkot_ravinnekertoimet$typpi_lannasta_kg)+sum(Tavallinen_viljely_ravinteet$typpi_lannasta_kg))
 Havikki_yhteensa<-Lantatyppi_ei_hävikkiä-Lantasumma_NO_N2O_havikit_poistettu
 
-
-
-
 #Luomulohkot-aliaineistoon ei tule ollenkaan mineraalilannoitteita. Niille tarvitaan kuitenkin dummymuuttujat datan kokoamista varten
 
 Luomulohkot_ravinnekertoimet<-Luomulohkot_ravinnekertoimet %>% mutate(typpikerroin_kg_ha = 0,
@@ -188,7 +175,7 @@ sum(lohkot_kaikki$Mineraalilannoitteen_typpi)
 
 sum(LH_summat_alat$Hehtaarit)+sum(alat$viljelyala)
 
-rm.all.but(c("lohkot_kaikki", "LH_summat_alat", "alat"))
+rm.all.but(c("lohkot_kaikki", "LH_summat_alat", "alat","luonnonhuuhtouma"))
 
 #TYPEN TARPEEN KATTAMINEN LANNALLA KOTIELÄINTILOILLA
 
@@ -207,7 +194,8 @@ x<-lohkot_kaikki %>% group_by(Tuotantosuunta, KASVIKOODI_lohkodata_reclass, KASV
 sum(x$Miner_lannoitteen_typpi_kg)
 sum(x$Lannan_typpi_kg)
 
-
+#Tämän operaation tekemiseksi tilatasolla on erillinen skripti. 
+#Tässä allokointi tehdään suoraan tuotantosuuntatasolle. 
 
 
 #ELÄINTILAT: VÄHENNYS
