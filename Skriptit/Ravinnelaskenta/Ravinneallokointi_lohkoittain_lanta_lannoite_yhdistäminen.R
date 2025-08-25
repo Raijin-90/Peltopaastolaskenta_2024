@@ -93,9 +93,10 @@ luonnHuuht_N <- (140/100) #140 kg/km2 typpeä -> kg/ha muunto
 
 luonnHuuht_P <- (5.4/100) #5.4 kg/km2 typpeä -> kg/ha muunto
 
-LH_summat<-Luonnonhuuhtouma %>% mutate(Luonnonhuuhtouman_typpi = Maannossumma*luonnHuuht_N,
-                            Luonnonhuuhtouman_fosfori = Maannossumma*luonnHuuht_P ) %>% summarise(Luonnonhuuhtouman_P = sum(Luonnonhuuhtouman_fosfori),
-                                                                                                  Luonnonhuuhtouman_typpi = sum(Luonnonhuuhtouman_typpi)) 
+LH_summat_alat<-Luonnonhuuhtouma %>%  mutate(Luonnonhuuhtouman_typpi = Maannossumma*luonnHuuht_N,
+                            Luonnonhuuhtouman_fosfori = Maannossumma*luonnHuuht_P ) %>% group_by(Tuotantosuunta) %>% summarise(Luonnonhuuhtouman_P = sum(Luonnonhuuhtouman_fosfori),
+                                                                                                  Luonnonhuuhtouman_typpi = sum(Luonnonhuuhtouman_typpi),
+                                                                                                  Hehtaarit=sum(Maannossumma)) 
 
 
 #Jatketaan laskentaa
@@ -109,6 +110,8 @@ Lannan_ravinnelaskenta <-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosu
 
 sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavikki_huomioitu_kg)
 sum(Lannan_ravinnelaskenta$viljelyala)
+
+
 
 #Typpikerroin: kg typpea/ha kokonaisalaa kullekin tuotantosuunnalle.                                    
 Lantakertoimet<-Lannan_ravinnelaskenta %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_N2O_levityshavikki_huomioitu_kg/viljelyala) %>% select(Tuotantosuunta, Lannan_typpi_kg_ha) 
@@ -132,7 +135,6 @@ Lantakertoimet<-Lantakertoimet %>% mutate(Lannan_typpi_kg_ha = Lannan_typpi_kg_h
 
 
 #Liitetään lohkoihin, sekä tavallisiin että luomu. 
-#Jos lantakertoimien laskennasta poistetaan suojakaistat ja muu lannoittamaton ala, sama on tehtävä näihin
 
 Lohkoittainen_min_lann_typpi_elaintilat<-Lohkoittainen_min_lann_typpi_elaintilat %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa))
 Elaintilalohkot_ravinnekertoimet_tavallinen<-inner_join(Lohkoittainen_min_lann_typpi_elaintilat,Lantakertoimet, by="Tuotantosuunta")
@@ -184,7 +186,9 @@ sum(lohkot_kaikki$Maannossumma)
 sum(lohkot_kaikki$typpi_lannasta_kg)
 sum(lohkot_kaikki$Mineraalilannoitteen_typpi)
 
-rm.all.but(c("lohkot_kaikki", "LH_summat"))
+sum(LH_summat_alat$Hehtaarit)+sum(alat$viljelyala)
+
+rm.all.but(c("lohkot_kaikki", "LH_summat_alat", "alat"))
 
 #TYPEN TARPEEN KATTAMINEN LANNALLA KOTIELÄINTILOILLA
 
@@ -272,7 +276,7 @@ colnames(Elaintilojen_mineraalilannoite)[7]<-"Tasokorjattu_mineraalilannoitteen_
 
 Mineraalilannoite<-rbind(Kasvitilojen_mineraalilannoite, Elaintilojen_mineraalilannoite)
 
-rm.all.but(c("Mineraalilannoite","lohkot_kaikki","LH_summat"))
+rm.all.but(c("Mineraalilannoite","lohkot_kaikki","LH_summat_alat","alat"))
 
 #Aggregoidaan lannan typpi tätä vastaavalle aggregointitasolle. 
 
@@ -286,9 +290,11 @@ Mineraalilannoite, by=c("Tuotantosuunta","KASVIKOODI_lohkodata_reclass"))
 
 Tulokset<-createWorkbook()
 addWorksheet(Tulokset, "Typpitulokset")
-addWorksheet(Tulokset, "Luonnonhuuhtouman osuus")
+addWorksheet(Tulokset,"Luonnonhuuhtouma_alat_summat")
+addWorksheet(Tulokset,"Lannoitettu_ala")
 writeData(Tulokset, "Typpitulokset", Liitos)
-writeData(Tulokset, "Luonnonhuuhtouman osuus", LH_summat)
+writeData(Tulokset, "Luonnonhuuhtouma_alat_summat", LH_summat_alat)
+writeData(Tulokset, "Lannoitettu_ala", alat)
 saveWorkbook(Tulokset, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset_Muu_peltoala_muutettuna.xlsx"), overwrite = T)
 
 #Bonari: samasta viljelyaladatasta (lohkot_kaikki) saadaan satomäärät ja suhteutus ravinteiden käyttö per sato
