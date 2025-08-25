@@ -1,4 +1,4 @@
-#Typen ja fosforin inputin allokointi lohkoista tilatasolle, tn/ha - intensiteettien laskenta
+#Typen inputin allokointi lohkoista tilatasolle, tn/ha - intensiteettien laskenta
 #Sekä hajonnat. 
 
 library(tidyverse);library(here);library(openxlsx)
@@ -19,7 +19,7 @@ source_lines <- function(file, lines){
 #Tiloittaisten intensiteettien tuottamiseksi ja hajontojen laskentaan  tämä allokointi tehdään nyt tilatasolle, ei aggregoida suoraan tuotantosuuntiin.  
 #Käytetään aiempaa skriptiä pohjana: 
 
-source_lines(here("Skriptit/Ravinnelaskenta/Ravinneallokointi_lohkoittain_lanta_lannoite_yhdistäminen.R"),1:221)
+source_lines(here("Skriptit/Ravinnelaskenta/Ravinneallokointi_lohkoittain_lanta_lannoite_yhdistäminen.R"),1:210)
 
 #ELÄINTILAT: 
 #Eläintilojen mineraalilannoitekäyttöä pudotetaan erotuksen verran, mutta jaetaan tiloittain
@@ -46,7 +46,7 @@ a<-a %>% mutate(Tasokorjattu_mineraalilannoitteen_typpi = Mineraalilannoitteen_t
 #KASVITILAT: KOROTUS
 #Vastaavasti kasvitiloilla korotetaan erotuksen verran mineraalilannoitteiden käyttöä 
 
-source_lines(here("Skriptit/Ravinnelaskenta/Ravinneallokointi_lohkoittain_lanta_lannoite_yhdistäminen.R"),243:247)
+source_lines(here("Skriptit/Ravinnelaskenta/Ravinneallokointi_lohkoittain_lanta_lannoite_yhdistäminen.R"),230:235)
 
 
 b<-lohkot_kaikki %>% filter(!(Tuotantosuunta %in% Animalfarms)) %>% group_by(Tuotantosuunta, MAATILA_TUNNUS) %>% summarise(
@@ -84,3 +84,31 @@ lannoitettuAla<-lohkot_kaikki %>% group_by(Tuotantosuunta, MAATILA_TUNNUS) %>% s
 
 Alat_ravinteet_tiloittain<-inner_join(c, lannoitettuAla, by =c("Tuotantosuunta","MAATILA_TUNNUS"))
 
+#ETOL-koodit
+
+library(readxl)
+Muuntoavain_tuotantosuunnat_tuotteet_ETOL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx")
+colnames(Muuntoavain_tuotantosuunnat_tuotteet_ETOL)[1]<-"Tuotantosuunta"
+
+rm.all.but(c("Alat_ravinteet_tiloittain","Muuntoavain_tuotantosuunnat_tuotteet_ETOL","Luonnonhuuhtouma"))
+
+Alat_ravinteet_tiloittain<-Alat_ravinteet_tiloittain %>%   mutate(Tuotantosuunta = case_when(Tuotantosuunta == "Lammas- ja vuohitilat" ~ "Lammas_ja_vuohitilat",
+                                                                  Tuotantosuunta == "Muut nautakarjatilat" ~ "Muut_nautakarjatilat",
+                                                                  Tuotantosuunta == "Nurmet, laitumet, hakamaat" ~ "Nurmet_laitumet_hakamaat",
+                                                                  Tuotantosuunta == "Palkokasvit pl. tarhaherne" ~ "Palkokasvit_pl_tarhaherne",
+                                                                  Tuotantosuunta == "Rypsi ja rapsi" ~ "Rypsi_rapsi",
+                                                                  Tuotantosuunta == "Tattari ja kinoa"  ~ "Tattari_kinoa",
+                                                                  Tuotantosuunta == "Vihannekset ja juurekset"  ~ "Vihannekset_juurekset",
+                                                                  Tuotantosuunta == "Viljat pl. ohra"   ~ "Viljat_pl_ohra",
+                                                                  .default = Tuotantosuunta))
+
+sum(Alat_ravinteet_tiloittain$Lannoitettu_viljelyala)+sum(Luonnonhuuhtouma$Maannossumma)
+
+
+Alat_ravinteet_tiloittain<-inner_join(Alat_ravinteet_tiloittain, Muuntoavain_tuotantosuunnat_tuotteet_ETOL, by="Tuotantosuunta")
+
+Alat_ravinteet_tiloittain<-Alat_ravinteet_tiloittain %>% group_by(ETOL,ETOL_koodi,MAATILA_TUNNUS) %>% summarise(Mineraalilannoitteen_typpi_tasokorjattu=sum(Tasokorjattu_mineraalilannoitteen_typpi),
+                                                                                           Lannan_typpi = sum(typpi_lannasta_kg),
+                                                                                           Lannoitettu_viljelyala=sum(Lannoitettu_viljelyala))
+
+sum(Alat_ravinteet_tiloittain$Lannoitettu_viljelyala)+sum(Luonnonhuuhtouma$Maannossumma)

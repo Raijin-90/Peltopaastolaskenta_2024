@@ -175,7 +175,7 @@ sum(lohkot_kaikki$Mineraalilannoitteen_typpi)
 
 sum(LH_summat_alat$Hehtaarit)+sum(alat$viljelyala)
 
-rm.all.but(c("lohkot_kaikki", "LH_summat_alat", "alat","luonnonhuuhtouma"))
+rm.all.but(c("lohkot_kaikki", "LH_summat_alat", "alat","Luonnonhuuhtouma"))
 
 #TYPEN TARPEEN KATTAMINEN LANNALLA KOTIELÄINTILOILLA
 
