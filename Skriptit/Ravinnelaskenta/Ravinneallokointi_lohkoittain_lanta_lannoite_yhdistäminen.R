@@ -44,8 +44,9 @@ Lantasumma_N2Ohaviolla<-sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavik
 Kaikki_lohkot<-rbind(lohkot_luomuviljelyssä, tavanomaisen_viljelyn_lohkot)
 sum(Kaikki_lohkot$Maannossumma)
 
-#Jos lannan levitysmäärä kesannoille ym.Muu peltoala-kasvityypeille joilla myöskään mineraalilannoitusta ei ole (kerroin = 0), 
-#se suodatus on tehtävä ylläoleviin aloihin. Lannan ravinnetonnit eivät muutu, koska pohjaavat eläinten määrään eikä pinta-alaan. 
+#Grassland-tyypeissä on kasveja, joille ei tule mineraalilannoitusta (kerroin nolla). Koska niitä ei lannoiteta, ei laiteta niille myöskään lantaa. 
+#Jos lannan levitysmäärä kesannoille ym.Muu peltoala-kasvityypeille joilla myöskään mineraalilannoitusta ei ole (kerroin = 0) halutaan nollata, 
+#se suodatus on tehtävä ylläoleviin Kaikki_lohkot aloihin. Lannan ravinnetonnit loppusummana eivät muutu, koska pohjaavat eläinten määrään eikä pinta-alaan. 
 #Koskee oheisia kasvikoodeja, jotka eritelty Kasvilista_lannoitus.xlsx tiedostoon tunnisteella "Ei lannoiteta" = 1, ETTL "muu peltoala". 
 
 Ei_lantaa <-c(6050,
@@ -81,11 +82,30 @@ Ei_lantaa <-c(6050,
 9820,
 9830)
 
+#Muutos 22/8/2025:
+#Näiltä lohkoilta tuleva luonnonhuutouma lasketaan erillisistä kertoimista jotka kuvaavat valuma-alueita ilman ihmisvaikutusta (Mattson et al 2003). 
+#Hylätylle peltomaalle spesifiä tällaista kerrointa ei ole.
+#Allokoitavaa totaalia typen ja fosforin osalta vähennetään tämän verran. 
+
+Luonnonhuuhtouma<-Kaikki_lohkot %>% filter((KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
+
+luonnHuuht_N <- (140/100) #140 kg/km2 typpeä -> kg/ha muunto
+
+luonnHuuht_P <- (5.4/100) #5.4 kg/km2 typpeä -> kg/ha muunto
+
+LH_summat<-Luonnonhuuhtouma %>% mutate(Luonnonhuuhtouman_typpi = Maannossumma*luonnHuuht_N,
+                            Luonnonhuuhtouman_fosfori = Maannossumma*luonnHuuht_P ) %>% summarise(Luonnonhuuhtouman_P = sum(Luonnonhuuhtouman_fosfori),
+                                                                                                  Luonnonhuuhtouman_typpi = sum(Luonnonhuuhtouman_typpi)) 
+
+
+#Jatketaan laskentaa
+
+#Poissuljetaan ne, joille lantaa ei laiteta
 Kaikki_lohkot<-Kaikki_lohkot %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
 
 alat<-Kaikki_lohkot %>% group_by(Tuotantosuunta) %>% summarise(viljelyala=sum(Maannossumma)) 
 
-Lannan_ravinnelaskenta<-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosuunta")
+Lannan_ravinnelaskenta <-inner_join(Lannan_ravinnelaskenta, alat, by="Tuotantosuunta")
 
 sum(Lannan_ravinnelaskenta$Lannan_typpi_N2O_levityshavikki_huomioitu_kg)
 sum(Lannan_ravinnelaskenta$viljelyala)
@@ -164,7 +184,7 @@ sum(lohkot_kaikki$Maannossumma)
 sum(lohkot_kaikki$typpi_lannasta_kg)
 sum(lohkot_kaikki$Mineraalilannoitteen_typpi)
 
-rm.all.but("lohkot_kaikki")
+rm.all.but(c("lohkot_kaikki", "LH_summat"))
 
 #TYPEN TARPEEN KATTAMINEN LANNALLA KOTIELÄINTILOILLA
 
@@ -252,7 +272,7 @@ colnames(Elaintilojen_mineraalilannoite)[7]<-"Tasokorjattu_mineraalilannoitteen_
 
 Mineraalilannoite<-rbind(Kasvitilojen_mineraalilannoite, Elaintilojen_mineraalilannoite)
 
-rm.all.but(c("Mineraalilannoite","lohkot_kaikki"))
+rm.all.but(c("Mineraalilannoite","lohkot_kaikki","LH_summat"))
 
 #Aggregoidaan lannan typpi tätä vastaavalle aggregointitasolle. 
 
@@ -264,8 +284,12 @@ Liitos<-inner_join(lantatyppi,
 Mineraalilannoite, by=c("Tuotantosuunta","KASVIKOODI_lohkodata_reclass"))
 
 
-write.xlsx(Liitos, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset_Muu_peltoala_muutettuna.xlsx"),overwrite = T)
-
+Tulokset<-createWorkbook()
+addWorksheet(Tulokset, "Typpitulokset")
+addWorksheet(Tulokset, "Luonnonhuuhtouman osuus")
+writeData(Tulokset, "Typpitulokset", Liitos)
+writeData(Tulokset, "Luonnonhuuhtouman osuus", LH_summat)
+saveWorkbook(Tulokset, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_tulokset_Muu_peltoala_muutettuna.xlsx"), overwrite = T)
 
 #Bonari: samasta viljelyaladatasta (lohkot_kaikki) saadaan satomäärät ja suhteutus ravinteiden käyttö per sato
 #Tämä ei onnistu kuin niille kasveille, joille ylipäänsä on satotieto. 
