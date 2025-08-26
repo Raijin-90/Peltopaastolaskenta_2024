@@ -128,7 +128,74 @@ rm.all.but("lohkodataTrimmed_turkistilojen_muutokset")
 
 #tonnia tai kiloa 
 totalPMass<- 2543*1000 #kiloa. Lähde: SYKERA 22|2019, Puustinen et al. taulukko 41. 
-#totalNmass <- INSERT VALUE
+
+#Muutos 26/08/25: Huomioidaan typpilaskennan tapaan lannoittamattoman alan emissio 
+
+#Grassland-tyypeissä on kasveja, joille ei tule mineraalilannoitusta (kerroin nolla). Koska niitä ei lannoiteta, ei laiteta niille myöskään lantaa. 
+#Jos lannan levitysmäärä kesannoille ym.Muu peltoala-kasvityypeille joilla myöskään mineraalilannoitusta ei ole (kerroin = 0) halutaan nollata, 
+#se suodatus on tehtävä ylläoleviin lohkodataTrimmed_turkistilojen_muutokset aloihin. Lannan ravinnetonnit loppusummana eivät muutu, koska pohjaavat eläinten määrään eikä pinta-alaan. 
+#Koskee oheisia kasvikoodeja, jotka eritelty Kasvilista_lannoitus.xlsx tiedostoon tunnisteella "Ei lannoiteta" = 1, ETTL "muu peltoala". 
+
+Ei_lantaa <-c(6050,
+              6051,
+              6220,
+              6300,
+              6600,
+              6710,
+              6720,
+              9101,
+              9102,
+              9403,
+              9404,
+              9405,
+              9412,
+              9413,
+              9422,
+              9423,
+              9424,
+              9620,
+              9700,
+              9801,
+              9802,
+              9803,
+              9804,
+              9805,
+              9806,
+              9807,
+              9808,
+              9810,
+              9811,
+              9812,
+              9820,
+              9830)
+
+#Muutos 22/8/2025:
+#Näiltä lohkoilta tuleva luonnonhuutouma lasketaan erillisistä kertoimista jotka kuvaavat valuma-alueita ilman ihmisvaikutusta (Mattson et al 2003). 
+#Hylätylle peltomaalle spesifiä tällaista kerrointa ei ole.
+#Allokoitavaa totaalia typen ja fosforin osalta vähennetään tämän verran. 
+#Lasketaan tässä, vähennetään tilatyypittäisessä skriptissä. 
+
+Luonnonhuuhtouma<-lohkodataTrimmed_turkistilojen_muutokset %>% filter((KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
+
+luonnHuuht_P <- (5.4/100) #5.4 kg/km2 typpeä -> kg/ha muunto
+
+LH_summat_alat<-Luonnonhuuhtouma %>%  mutate(Luonnonhuuhtouman_fosfori = Maannossumma*luonnHuuht_P ) %>% group_by(Tuotantosuunta) %>% summarise(Luonnonhuuhtouman_P = sum(Luonnonhuuhtouman_fosfori),
+                                                                                                                                                Hehtaarit=sum(Maannossumma)) 
+#Vähennetään allokoitavasta fosforitotaalista tämä osuus
+
+totalPMass <- totalPMass - sum(LH_summat_alat$Luonnonhuuhtouman_P) 
+
+
+#Jatketaan laskentaa
+
+#Poissuljetaan ne, joille lantaa ei laiteta
+Kaikki_lohkot<-Kaikki_lohkot %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
+
+
+
+
+
+
 
 #Kerrotaan joka lohkon P-luvulla sen pinta-alaa
 

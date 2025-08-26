@@ -85,6 +85,7 @@ Ei_lantaa <-c(6050,
 #Näiltä lohkoilta tuleva luonnonhuutouma lasketaan erillisistä kertoimista jotka kuvaavat valuma-alueita ilman ihmisvaikutusta (Mattson et al 2003). 
 #Hylätylle peltomaalle spesifiä tällaista kerrointa ei ole.
 #Allokoitavaa totaalia typen ja fosforin osalta vähennetään tämän verran. 
+#Lasketaan tässä, vähennetään tilatyypittäisessä skriptissä. 
 
 Luonnonhuuhtouma<-Kaikki_lohkot %>% filter((KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
 
