@@ -189,12 +189,7 @@ totalPMass <- totalPMass - sum(LH_summat_alat$Luonnonhuuhtouman_P)
 #Jatketaan laskentaa
 
 #Poissuljetaan ne, joille lantaa ei laiteta
-Kaikki_lohkot<-Kaikki_lohkot %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
-
-
-
-
-
+lohkodataTrimmed_turkistilojen_muutokset<-lohkodataTrimmed_turkistilojen_muutokset %>% filter(!(KASVIKOODI_lohkodata_reclass %in% Ei_lantaa)) 
 
 
 #Kerrotaan joka lohkon P-luvulla sen pinta-alaa
@@ -216,10 +211,48 @@ lohkodataTrimmed_turkistilojen_muutokset$Pmass<-Pcoeff*lohkodataTrimmed_turkisti
 
 t<-sum(lohkodataTrimmed_turkistilojen_muutokset$Pmass) == totalPMass
 stopifnot(t == TRUE)
-rm.all.but("lohkodataTrimmed_turkistilojen_muutokset")
+rm.all.but(c("lohkodataTrimmed_turkistilojen_muutokset","LH_summat_alat"))
 
-#Tulosten aggregointi
-#Tarkin taso kasvien osalta. ETOL-ETTL aggregointi onnistuu molemmista
+
+#LASKETAAN TUOTANTOSUUNTAKOHTAISET INTENSITEETIT 
+#Tulosten aggregointi: keskiarvot ja keskihajonnat. Ensin tilatason intensiteetit
+
+Fosfori_aggre<-lohkodataTrimmed_turkistilojen_muutokset %>% group_by(ETOL, ETOL_koodi, MAATILA_TUNNUS) %>% summarise(kg_P_lannoitettu_ala = sum(Pmass),
+                                                                                       Lannoitettu_ala = sum(Maannossumma),
+                                                                                       kg_P_ha = kg_P_lannoitettu_ala/Lannoitettu_ala)  
+
+Fosfori_aggre_ka<- Fosfori_aggre %>% group_by(ETOL, ETOL_koodi) %>% summarise(kg_P_lannoitettu_ala = sum(kg_P_lannoitettu_ala), 
+                                                              Lannoitettu_ala = sum(Lannoitettu_ala),
+                                                              kg_P_ha_keskimaar_intensiteetti = mean(kg_P_ha),
+                                                              Intensiteetin_hajonta = sd(kg_P_ha))
+
+
+#Luonnonhuuhtoumatiedot kytketään samaan tauluun
+
+Muuntoavain_tuotantosuunnat_tuotteet_ETOL <- read_excel("Data/Muuntoavain_tuotantosuunnat_tuotteet_ETOL.xlsx")
+colnames(Muuntoavain_tuotantosuunnat_tuotteet_ETOL)[colnames(Muuntoavain_tuotantosuunnat_tuotteet_ETOL)=="Tuotantosuunta_original"]<-"Tuotantosuunta"
+
+LH_summat_alat<-inner_join(LH_summat_alat,Muuntoavain_tuotantosuunnat_tuotteet_ETOL,by=c("Tuotantosuunta"))
+
+LH_Fosfori_aggre<-LH_summat_alat %>% group_by(ETOL_koodi, ETOL) %>% summarise(Luonnonhuuhtouman_P = sum(Luonnonhuuhtouman_P),
+                                                            Lannoittamattomat_hehtaarit = sum(Hehtaarit)) 
+
+Fosfori_tuotsuunnat<-inner_join(Fosfori_aggre_ka,LH_Fosfori_aggre, by=c("ETOL","ETOL_koodi"))
+
+#Summien tarkistus
+sum(Fosfori_tuotsuunnat$Lannoittamattomat_hehtaarit)+sum(Fosfori_tuotsuunnat$Lannoitettu_ala)
+sum(Fosfori_tuotsuunnat$kg_HEP_lannoitettu_ala)+sum(Fosfori_tuotsuunnat$Luonnonhuuhtouman_P)
+
+library(openxlsx)
+TS_intensiteetit<-createWorkbook()
+addWorksheet(TS_intensiteetit, "Fosfori_tuotsuunnat")
+writeData(TS_intensiteetit, "Fosfori_tuotsuunnat", Fosfori_tuotsuunnat)
+saveWorkbook(TS_intensiteetit, here("Output/Ravinnedata/Emissiotulokset/Fosforin_intensiteetit_tilatyypeille_luonnonhuuht_poistettuna.xlsx")) 
+
+
+
+
+
 
 a<-lohkodataTrimmed_turkistilojen_muutokset %>% group_by(ETOL, ETOL_koodi) %>% summarise(P_load_kg = sum(Pmass))
 b<-lohkodataTrimmed_turkistilojen_muutokset %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(P_load_kg = sum(Pmass))
