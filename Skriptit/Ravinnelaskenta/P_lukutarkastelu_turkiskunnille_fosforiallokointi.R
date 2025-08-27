@@ -247,23 +247,30 @@ library(openxlsx)
 TS_intensiteetit<-createWorkbook()
 addWorksheet(TS_intensiteetit, "Fosfori_tuotsuunnat")
 writeData(TS_intensiteetit, "Fosfori_tuotsuunnat", Fosfori_tuotsuunnat)
-saveWorkbook(TS_intensiteetit, here("Output/Ravinnedata/Emissiotulokset/Fosforin_intensiteetit_tilatyypeille_luonnonhuuht_poistettuna.xlsx")) 
+saveWorkbook(TS_intensiteetit, here("Output/Ravinnedata/Emissiotulokset/Fosforin_intensiteetit_tilatyypeille_luonnonhuuht_poistettuna.xlsx"),overwrite = T) 
 
 
+#Aggregointi tarkimmalle kasvitasolle
 
+kasvitAggre<-lohkodataTrimmed_turkistilojen_muutokset %>% group_by(KASVIKOODI_lohkodata_reclass,KASVINIMI_reclass) %>% summarise(kg_P_lannoitettu_ala = sum(Pmass), 
+                                                                                         Lannoitettu_ala = sum(Maannossumma))
+#Satokerrointen liitos,  liitetään niin että kaikki kasvit jäävät, oli niillä satokerroin tai ei
 
+library(readxl)
+Satokertoimet <- read_excel("Data/Satokertoimet.xlsx")
+colnames(Satokertoimet)<-c("KASVIKOODI_lohkodata_reclass","KASVINIMI_reclass","Hehtaarisato_tonnia_ha")
 
+kasvitAggre<-left_join(kasvitAggre, Satokertoimet, by=c("KASVIKOODI_lohkodata_reclass","KASVINIMI_reclass"))
 
+kasvitAggre<-kasvitAggre %>% mutate(Sato_tn = Lannoitettu_ala*Hehtaarisato_tonnia_ha)
 
+#lasketaan intensiteetti kg P/kg satoa
+kasvitAggre<-kasvitAggre %>% mutate(Intensiteetti_kgP_kg = kg_P_lannoitettu_ala/(1000*Sato_tn)) 
 
-
-
-
-
-
-
-
-
+Kasviaggregointi<-createWorkbook()
+addWorksheet(Kasviaggregointi, "P_kasvit_intensiteetit")
+writeData(Kasviaggregointi, "P_kasvit_intensiteetit", kasvitAggre)
+saveWorkbook(Kasviaggregointi,file=here("Output/Ravinnedata/Emissiotulokset/Fosforin_intensiteetit_kasveille.xlsx"), overwrite = T)
 
 
 
