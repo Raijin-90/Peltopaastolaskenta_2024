@@ -204,7 +204,7 @@ prodsum<-sum(lohkodataTrimmed_turkistilojen_muutokset$Pluku_ala_tulo)
 #Kerrotaan P-luvun ja alan tuloa sen sijaan. 
 
 Pcoeff<-totalPMass/prodsum
-#Ncoeff<-totalNMass/Prodsum
+
 
 lohkodataTrimmed_turkistilojen_muutokset$Pmass<-Pcoeff*lohkodataTrimmed_turkistilojen_muutokset$Pluku_ala_tulo
 #lohkodataTrimmed_turkistilojen_muutokset$Nmass<-Ncoeff*lohkodataTrimmed_turkistilojen_muutokset$Pluku_ala_tulo
@@ -248,6 +248,20 @@ TS_intensiteetit<-createWorkbook()
 addWorksheet(TS_intensiteetit, "Fosfori_tuotsuunnat")
 writeData(TS_intensiteetit, "Fosfori_tuotsuunnat", Fosfori_tuotsuunnat)
 saveWorkbook(TS_intensiteetit, here("Output/Ravinnedata/Emissiotulokset/Fosforin_intensiteetit_tilatyypeille_luonnonhuuht_poistettuna.xlsx")) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -186,5 +186,9 @@ saveWorkbook(Typpi, file=here("Output/Ravinnedata/Emissiotulokset/Typen_intensit
 write.xlsx(LH_summat_alat, file=here("Output/Ravinnedata/Emissiotulokset/Typen_luonnonhuuhtouma_lannoittamattomalta_alalta.xlsx"), overwrite = T)
 
 
+
+
+
+
 gc()
 rm(list=ls())
