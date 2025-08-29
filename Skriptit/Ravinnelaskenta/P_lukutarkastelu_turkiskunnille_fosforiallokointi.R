@@ -214,6 +214,12 @@ stopifnot(t == TRUE)
 rm.all.but(c("lohkodataTrimmed_turkistilojen_muutokset","LH_summat_alat"))
 
 
+#Pinta-alojen tallennus, tarvitaan satomäärien laskentaan
+Fosforilaskenta_alat<-lohkodataTrimmed_turkistilojen_muutokset %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Pinta_ala = sum(Maannossumma)) 
+
+write.xlsx(Fosforilaskenta_alat, file="Fosforilaskenta_alat.xlsx")
+
+
 #LASKETAAN TUOTANTOSUUNTAKOHTAISET INTENSITEETIT 
 #Tulosten aggregointi: keskiarvot ja keskihajonnat. Ensin tilatason intensiteetit
 
@@ -221,10 +227,27 @@ Fosfori_aggre<-lohkodataTrimmed_turkistilojen_muutokset %>% group_by(ETOL, ETOL_
                                                                                        Lannoitettu_ala = sum(Maannossumma),
                                                                                        kg_P_ha = kg_P_lannoitettu_ala/Lannoitettu_ala)  
 
+#Intensiteetti pääluokittain
+
+Animalfarms<-c("Hevostilat","Lammas- ja vuohitilat","Maitotilat", "Munatilat","Muut nautakarjatilat","Siipikarjatilat","Sikatilat","Turkistilat")
+
+Fosfori_aggre<-Fosfori_aggre %>% mutate(Farmtype = case_when(ETOL %in% Animalfarms ~ "Animal",
+                                                                                                                   .default = "Crop"))
+
+Fosfori_paaluokat<-Fosfori_aggre %>% group_by(Farmtype) %>% summarise(kg_P_ha_paaluokan_keskiarvo = mean(kg_P_ha),
+                                                                      Intensiteetin_hajonta = sd(kg_P_ha)) 
+  
+
+
+
 Fosfori_aggre_ka<- Fosfori_aggre %>% group_by(ETOL, ETOL_koodi) %>% summarise(kg_P_lannoitettu_ala = sum(kg_P_lannoitettu_ala), 
                                                               Lannoitettu_ala = sum(Lannoitettu_ala),
                                                               kg_P_ha_keskimaar_intensiteetti = mean(kg_P_ha),
                                                               Intensiteetin_hajonta = sd(kg_P_ha))
+
+
+
+
 
 
 #Luonnonhuuhtoumatiedot kytketään samaan tauluun
@@ -243,10 +266,14 @@ Fosfori_tuotsuunnat<-inner_join(Fosfori_aggre_ka,LH_Fosfori_aggre, by=c("ETOL","
 sum(Fosfori_tuotsuunnat$Lannoittamattomat_hehtaarit)+sum(Fosfori_tuotsuunnat$Lannoitettu_ala)
 sum(Fosfori_tuotsuunnat$kg_HEP_lannoitettu_ala)+sum(Fosfori_tuotsuunnat$Luonnonhuuhtouman_P)
 
+
+
 library(openxlsx)
 TS_intensiteetit<-createWorkbook()
 addWorksheet(TS_intensiteetit, "Fosfori_tuotsuunnat")
+addWorksheet(TS_intensiteetit, "Fosfori_paaluokat")
 writeData(TS_intensiteetit, "Fosfori_tuotsuunnat", Fosfori_tuotsuunnat)
+writeData(TS_intensiteetit, "Fosfori_paaluokat", Fosfori_paaluokat)
 saveWorkbook(TS_intensiteetit, here("Output/Ravinnedata/Emissiotulokset/Fosforin_intensiteetit_tilatyypeille_luonnonhuuht_poistettuna.xlsx"),overwrite = T) 
 
 

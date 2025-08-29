@@ -219,3 +219,8 @@ Mineraalilannoitteiden_typpi_aggre<-rbind(Elaintila_typpi_aggre, Kasvitilat_tyyp
 
 library(openxlsx)
 write.xlsx(Mineraalilannoitteiden_typpi_aggre, file=here("Output/Ravinnedata/Emissiotulokset/Mineraalilannoitteiden_typpi_tuotantosuunnittain_alat.xlsx"))
+
+
+
+Typpiputki<-GTKdata %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Hehtaarit = sum(Maannossumma))
+write.xlsx(Typpiputki, file=here("Typpilaskenta_alat"))

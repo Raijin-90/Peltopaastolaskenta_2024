@@ -140,6 +140,10 @@ Alat_ravinteet_kasveittain<-Alat_ravinteet_kasveittain %>% group_by(Tuotantosuun
 Alat_ravinteet_kasveittain<-Alat_ravinteet_kasveittain %>% mutate(Typpi_yhteensa_ei_luonnonhuuhtoumaa = Typpi_yhteensa-LH_typpi_tilalle)
 
 
+sum(Alat_ravinteet_kasveittain$Typpi_yhteensa)
+sum(Alat_ravinteet_kasveittain$Typpi_yhteensa_ei_luonnonhuuhtoumaa)
+
+
 #Aggregoidaan turhat muuttujat pois. Tavoitteena kasvin N-intensiteetti yli tuotantosuuntien
 
 Alat_ravinteet_aggre<- Alat_ravinteet_kasveittain %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Typpi_yhteensa_kg_ei_luonnonhuuhtoumaa = sum(Typpi_yhteensa_ei_luonnonhuuhtoumaa), 

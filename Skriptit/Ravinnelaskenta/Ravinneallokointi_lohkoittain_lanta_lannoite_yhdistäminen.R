@@ -289,19 +289,10 @@ saveWorkbook(Tulokset, file=here("Output/Ravinnedata/Typpi_tuotantosuunnittain_t
 #Bonari: samasta viljelyaladatasta (lohkot_kaikki) saadaan satomäärät ja suhteutus ravinteiden käyttö per sato
 #Tämä ei onnistu kuin niille kasveille, joille ylipäänsä on satotieto. 
 
-library(readxl)
-Satokertoimet <- read_excel("Data/Satokertoimet.xlsx")
-colnames(Satokertoimet)[1]<-"KASVIKOODI_lohkodata_reclass"
-Satokertoimet$KASVIKOODI_lohkodata_reclass<-as.double(Satokertoimet$KASVIKOODI_lohkodata_reclass)
 
-Lohkot_sato<-left_join(lohkot_kaikki, Satokertoimet, by="KASVIKOODI_lohkodata_reclass")
+Pinta_alat_typpilinja<-lohkot_kaikki %>% group_by(KASVIKOODI_lohkodata_reclass, KASVINIMI_reclass) %>% summarise(Pinta_ala_ha = sum(Maannossumma))
+sum(Pinta_alat_typpilinja$Pinta_ala_ha)
 
-Lohkot_sato_aggre<-Lohkot_sato %>% 
-  filter(!is.na(Hehtaarisato_tonnia_ha)) %>% 
-  mutate(Satotonnit = Maannossumma*Hehtaarisato_tonnia_ha) %>%
-  group_by(KASVINIMI_reclass,KASVIKOODI_lohkodata_reclass) %>% summarise(Satotonnit = sum(Satotonnit))
+sum(lohkot_kaikki$Maannossumma)
 
-Satotonnitaulukko<-createWorkbook()
-addWorksheet(Satotonnitaulukko,"Sadot")
-writeData(Satotonnitaulukko, "Sadot", Lohkot_sato_aggre)
-saveWorkbook(Satotonnitaulukko, file=here("Output/Ravinnedata/Sadot.xlsx"), overwrite = T)
+write.xlsx(Pinta_alat_typpilinja, file="Typpilaskenta_alat.xlsx", overwrite = T)
